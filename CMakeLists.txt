@@ -13,7 +13,11 @@ set(GLAD_INCLUDE_DIR Libraries/glad/include)
 
 # gather source files
 set(GLAD_SRC Libraries/glad/src/glad.c)
-set(ALL_SRC_FILES main.cpp ${GLAD_SRC})
+set(ALL_SRC_FILES ${GLAD_SRC}
+    Source/main.cpp
+	Source/Vector.cpp
+	Source/Matrix.cpp
+)
 
 
 include_directories(${GLFW_INCLUDE_DIR} ${GLAD_INCLUDE_DIR})
