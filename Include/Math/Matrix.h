@@ -2,17 +2,17 @@
 
 namespace Math
 {
-	class Mat3
-	{
-	public:
+    class Mat3
+    {
+    public:
 
-		float values[9];
-	};
+        float values[9];
+    };
 
-	class Mat4
-	{
-	public:
+    class Mat4
+    {
+    public:
 
-		float values[16];
-	};
+        float values[16];
+    };
 }

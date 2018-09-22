@@ -10,10 +10,10 @@
 //  0---1
 
 Math::Vec3 verts[] = {
-	{-0.5f, -0.5f, 0.0f},
-	{ 0.5f, -0.5f, 0.0f},
-	{-0.5f,  0.5f, 0.0f},
-	{ 0.5f,  0.5f, 0.0f},
+    {-0.5f, -0.5f, 0.0f},
+    { 0.5f, -0.5f, 0.0f},
+    {-0.5f,  0.5f, 0.0f},
+    { 0.5f,  0.5f, 0.0f},
 };
 
 unsigned int indices[] = {
@@ -130,11 +130,11 @@ int main(int argc, char **argv)
     }
 
     float r = 0.0f;
-	int rdir = 1;
+    int rdir = 1;
     float g = 0.0f;
-	int gdir = 1;
+    int gdir = 1;
     float b = 0.0f;
-	int bdir = 1;
+    int bdir = 1;
 
     glViewport(0, 0, 800, 600);
     glClearColor(r, g, b, 1.0f);
@@ -153,19 +153,20 @@ int main(int argc, char **argv)
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-		if (r >= 1.0f) rdir = -1;
-		if (r <= 0.0f) rdir = 1;
-
-		if (g >= 1.0f) gdir = -1;
-		if (g <= 0.0f) gdir = 1;
-
-		if (b >= 1.0f) bdir = -1;
-		if (b <= 0.0f) bdir = 1;
+        
+	    if (r >= 1.0f) rdir = -1;
+	    if (r <= 0.0f) rdir = 1;
+        
+	    if (g >= 1.0f) gdir = -1;
+	    if (g <= 0.0f) gdir = 1;
+        
+	    if (b >= 1.0f) bdir = -1;
+	    if (b <= 0.0f) bdir = 1;
 
         r += 0.001 * (float) rdir;
-		g += 0.002 * (float) gdir;
+	    g += 0.002 * (float) gdir;
         b += 0.003 * (float) bdir;
+            
     }
 
     return 0;

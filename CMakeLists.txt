@@ -15,8 +15,8 @@ set(GLAD_INCLUDE_DIR Libraries/glad/include)
 set(GLAD_SRC Libraries/glad/src/glad.c)
 set(ALL_SRC_FILES ${GLAD_SRC}
     Source/main.cpp
-	Source/Vector.cpp
-	Source/Matrix.cpp
+    Source/Vector.cpp
+    Source/Matrix.cpp
 )
 
 

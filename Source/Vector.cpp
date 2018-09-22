@@ -27,9 +27,9 @@ Math::Vec2::Vec2(const Vec4 &v) : x(v.x), y(v.y)
 
 Math::Vec2& Math::Vec2::operator= (const Vec2 &v) 
 {
-	x = v.x;
-	y = v.y;
-	return *this;
+    x = v.x;
+    y = v.y;
+    return *this;
 }
 
 
@@ -39,53 +39,53 @@ Math::Vec2::~Vec2()
 
 Math::Vec2 Math::Vec2::operator+ (const Vec2 &v) const 
 {
-	return Vec2(x + v.x, y + v.y);
+    return Vec2(x + v.x, y + v.y);
 }
 
 
 Math::Vec2 Math::Vec2::operator- (const Vec2 &v) const 
 {
-	return Vec2(x - v.x, y - v.y);
+    return Vec2(x - v.x, y - v.y);
 }
 
 
 Math::Vec2 Math::Vec2::operator* (float s) const 
 {
-	return Vec2(x * s, y * s);
+    return Vec2(x * s, y * s);
 }
 
 
 Math::Vec2 Math::Vec2::operator/ (float s) const
 {
-	return Vec2(x / s, y / s);
+    return Vec2(x / s, y / s);
 }
 
 
 void Math::Vec2::operator+= (const Vec2 &v) 
 {
-	x += v.x;
-	y += v.y;
+    x += v.x;
+    y += v.y;
 }
 
 
 void Math::Vec2::operator-= (const Vec2 &v) 
 {
-	x -= v.x;
-	y -= v.y;
+    x -= v.x;
+    y -= v.y;
 }
 
 
 void Math::Vec2::operator*= (float s)
 {
-	x *= s;
-	y *= s;
+    x *= s;
+    y *= s;
 }
 
 
 void Math::Vec2::operator/= (float s) 
 {
-	x /= s;
-	y /= s;
+    x /= s;
+    y /= s;
 }
 
 
@@ -122,10 +122,10 @@ Math::Vec3::Vec3(const Vec4 & v) : x(v.x), y(v.y), z(v.z)
 
 Math::Vec3& Math::Vec3::operator= (const Vec3 &v)
 {
-	x = v.x;
-	y = v.y;
-	z = v.z;
-	return *this;
+    x = v.x;
+    y = v.y;
+    z = v.z;
+    return *this;
 }
 
 
@@ -135,57 +135,57 @@ Math::Vec3::~Vec3()
 
 Math::Vec3 Math::Vec3::operator+ (const Vec3 &v) const
 {
-	return Vec3(x + v.x, y + v.y, z + v.z);
+    return Vec3(x + v.x, y + v.y, z + v.z);
 }
 
 
 Math::Vec3 Math::Vec3::operator- (const Vec3 &v) const 
 {
-	return Vec3(x - v.x, y - v.y, z - v.z);
+    return Vec3(x - v.x, y - v.y, z - v.z);
 }
 
 
 Math::Vec3 Math::Vec3::operator* (float s) const 
 {
-	return Vec3(x * s, y * s, z * s);
+    return Vec3(x * s, y * s, z * s);
 }
 
 
 Math::Vec3 Math::Vec3::operator/ (float s) const
 {
-	return Vec3(x / s, y / s, z / s);
+    return Vec3(x / s, y / s, z / s);
 }
 
 
 void Math::Vec3::operator+= (const Vec3 &v) 
 {
-	x += v.x;
-	y += v.y;
-	z += v.z;
+    x += v.x;
+    y += v.y;
+    z += v.z;
 }
 
 
 void Math::Vec3::operator-= (const Vec3 &v) 
 {
-	x -= v.x;
-	y -= v.y;
-	z -= v.z;
+    x -= v.x;
+    y -= v.y;
+    z -= v.z;
 }
 
 
 void Math::Vec3::operator*= (float s) 
 {
-	x *= s;
-	y *= s;
-	z *= s;
+    x *= s;
+    y *= s;
+    z *= s;
 }
 
 
 void Math::Vec3::operator/= (float s) 
 {
-	x /= s;
-	y /= s;
-	z /= s;
+    x /= s;
+    y /= s;
+    z /= s;
 }
 
 
@@ -226,11 +226,11 @@ Math::Vec4::Vec4(const Vec4 &v) : x(v.x), y(v.y), z(v.z), w(v.w)
 
 Math::Vec4& Math::Vec4::operator= (const Vec4 &v) 
 {
-	x = v.x;
-	y = v.y;
-	z = v.z;
-	w = v.w;
-	return *this;
+    x = v.x;
+    y = v.y;
+    z = v.z;
+    w = v.w;
+    return *this;
 }
 
 
@@ -240,59 +240,59 @@ Math::Vec4::~Vec4()
 
 Math::Vec4 Math::Vec4::operator+ (const Vec4 &v) const 
 {
-	return Vec4(x + v.x, y + v.y, z + v.z, w + v.w);
+    return Vec4(x + v.x, y + v.y, z + v.z, w + v.w);
 }
 
 
 Math::Vec4 Math::Vec4::operator- (const Vec4 &v) const 
 {
-	return Vec4(x - v.x, y - v.y, z - v.z, w - v.w);
+    return Vec4(x - v.x, y - v.y, z - v.z, w - v.w);
 }
 
 
 Math::Vec4 Math::Vec4::operator* (float s) const
 {
-	return Vec4(x * s, y * s, z * s, w * s);
+    return Vec4(x * s, y * s, z * s, w * s);
 }
 
 
 Math::Vec4 Math::Vec4::operator/ (float s) const
 {
-	return Vec4(x / s, y / s, z / s, w / s);
+    return Vec4(x / s, y / s, z / s, w / s);
 }
 
 
 void Math::Vec4::operator+= (const Vec4 &v)
 {
-	x += v.x;
-	y += v.y;
-	z += v.z;
-	w += v.w;
+    x += v.x;
+    y += v.y;
+    z += v.z;
+    w += v.w;
 }
 
 
 void Math::Vec4::operator-= (const Vec4 &v)
 {
-	x -= v.x;
-	y -= v.y;
-	z -= v.z;
-	w -= v.w;
+    x -= v.x;
+    y -= v.y;
+    z -= v.z;
+    w -= v.w;
 }
 
 
 void Math::Vec4::operator*= (float s) 
 {
-	x *= s;
-	y *= s;
-	z *= s;
-	w *= s;
+    x *= s;
+    y *= s;
+    z *= s;
+    w *= s;
 }
 
 
 void Math::Vec4::operator/= (float s) 
 {
-	x /= s;
-	y /= s;
-	z /= s;
-	w /= s;
+    x /= s;
+    y /= s;
+    z /= s;
+    w /= s;
 }
