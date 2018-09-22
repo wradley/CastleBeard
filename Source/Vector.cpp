@@ -61,31 +61,35 @@ Math::Vec2 Math::Vec2::operator/ (float s) const
 }
 
 
-void Math::Vec2::operator+= (const Vec2 &v) 
+Math::Vec2& Math::Vec2::operator+= (const Vec2 &v)
 {
     x += v.x;
     y += v.y;
+    return *this;
 }
 
 
-void Math::Vec2::operator-= (const Vec2 &v) 
+Math::Vec2& Math::Vec2::operator-= (const Vec2 &v)
 {
     x -= v.x;
     y -= v.y;
+    return *this;
 }
 
 
-void Math::Vec2::operator*= (float s)
+Math::Vec2& Math::Vec2::operator*= (float s)
 {
     x *= s;
     y *= s;
+    return *this;
 }
 
 
-void Math::Vec2::operator/= (float s) 
+Math::Vec2& Math::Vec2::operator/= (float s)
 {
     x /= s;
     y /= s;
+    return *this;
 }
 
 
@@ -157,35 +161,39 @@ Math::Vec3 Math::Vec3::operator/ (float s) const
 }
 
 
-void Math::Vec3::operator+= (const Vec3 &v) 
+Math::Vec3& Math::Vec3::operator+= (const Vec3 &v)
 {
     x += v.x;
     y += v.y;
     z += v.z;
+    return *this;
 }
 
 
-void Math::Vec3::operator-= (const Vec3 &v) 
+Math::Vec3& Math::Vec3::operator-= (const Vec3 &v)
 {
     x -= v.x;
     y -= v.y;
     z -= v.z;
+    return *this;
 }
 
 
-void Math::Vec3::operator*= (float s) 
+Math::Vec3& Math::Vec3::operator*= (float s)
 {
     x *= s;
     y *= s;
     z *= s;
+    return *this;
 }
 
 
-void Math::Vec3::operator/= (float s) 
+Math::Vec3& Math::Vec3::operator/= (float s)
 {
     x /= s;
     y /= s;
     z /= s;
+    return *this;
 }
 
 
@@ -262,37 +270,41 @@ Math::Vec4 Math::Vec4::operator/ (float s) const
 }
 
 
-void Math::Vec4::operator+= (const Vec4 &v)
+Math::Vec4& Math::Vec4::operator+= (const Vec4 &v)
 {
     x += v.x;
     y += v.y;
     z += v.z;
     w += v.w;
+    return *this;
 }
 
 
-void Math::Vec4::operator-= (const Vec4 &v)
+Math::Vec4& Math::Vec4::operator-= (const Vec4 &v)
 {
     x -= v.x;
     y -= v.y;
     z -= v.z;
     w -= v.w;
+    return *this;
 }
 
 
-void Math::Vec4::operator*= (float s) 
+Math::Vec4& Math::Vec4::operator*= (float s)
 {
     x *= s;
     y *= s;
     z *= s;
     w *= s;
+    return *this;
 }
 
 
-void Math::Vec4::operator/= (float s) 
+Math::Vec4& Math::Vec4::operator/= (float s)
 {
     x /= s;
     y /= s;
     z /= s;
     w /= s;
+    return *this;
 }

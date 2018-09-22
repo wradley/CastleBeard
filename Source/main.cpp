@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "../Include/Math/Vector.h"
+#include "../Include/Math/Matrix.h"
 
 
 //  2---3
@@ -144,6 +145,16 @@ int main(int argc, char **argv)
     CreateQuad();
     glUseProgram(shader);
     glBindVertexArray(vao);
+
+    Math::Mat2 mat;
+    Math::Vec2 vec(5.0f, 6.0f);
+
+    mat.values[0] = 1.0f;
+    mat.values[1] = 3.0f;
+    mat.values[2] = 2.0f;
+    mat.values[3] = 4.0f;
+
+    auto ret = mat * vec;
     
     while(!glfwWindowShouldClose(window))
     {

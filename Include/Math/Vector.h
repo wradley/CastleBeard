@@ -23,10 +23,10 @@ namespace Math
         Vec2 operator* (float s) const;
         Vec2 operator/ (float s) const;
         
-        void operator+= (const Vec2 &v);
-        void operator-= (const Vec2 &v);
-        void operator*= (float s);
-        void operator/= (float s);
+        Vec2& operator+= (const Vec2 &v);
+        Vec2& operator-= (const Vec2 &v);
+        Vec2& operator*= (float s);
+        Vec2& operator/= (float s);
         
         float x, y;
     };
@@ -51,10 +51,10 @@ namespace Math
         Vec3 operator* (float s) const;
         Vec3 operator/ (float s) const;
 
-        void operator+= (const Vec3 &v);
-        void operator-= (const Vec3 &v);
-        void operator*= (float s);
-        void operator/= (float s);
+        Vec3& operator+= (const Vec3 &v);
+        Vec3& operator-= (const Vec3 &v);
+        Vec3& operator*= (float s);
+        Vec3& operator/= (float s);
         
         float x, y, z;
     };
@@ -80,10 +80,10 @@ namespace Math
         Vec4 operator* (float s) const;
         Vec4 operator/ (float s) const;
 
-        void operator+= (const Vec4 &v);
-        void operator-= (const Vec4 &v);
-        void operator*= (float s);
-        void operator/= (float s);
+        Vec4& operator+= (const Vec4 &v);
+        Vec4& operator-= (const Vec4 &v);
+        Vec4& operator*= (float s);
+        Vec4& operator/= (float s);
 
         float x, y, z, w;
     };
