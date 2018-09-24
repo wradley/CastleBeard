@@ -146,15 +146,11 @@ int main(int argc, char **argv)
     glUseProgram(shader);
     glBindVertexArray(vao);
 
-    Math::Mat2 mat;
-    Math::Vec2 vec(5.0f, 6.0f);
+    Math::Mat4 transpose = Math::Transpose(Math::Mat4(1.0f), Math::Vec3(33.0f));
+    Math::Vec3 position(1.0f);
 
-    mat.values[0] = 1.0f;
-    mat.values[1] = 3.0f;
-    mat.values[2] = 2.0f;
-    mat.values[3] = 4.0f;
-
-    auto ret = mat * vec;
+    auto r1 = transpose * Math::Vec4(position, 1.0f);
+    //std::cout << "[" << m1.values[12] << ", " << m1.values[13] << ", " << m1.values[14] << "]" << std::endl;
     
     while(!glfwWindowShouldClose(window))
     {

@@ -11,6 +11,7 @@ namespace Math
         
         Vec2();
         Vec2(float x);
+        Vec2(float (&x)[2]);
         Vec2(float x, float y);
         Vec2(const Vec2 &v);
         Vec2(const Vec3 &v);
@@ -38,6 +39,7 @@ namespace Math
 
         Vec3();
         Vec3(float x);
+        Vec3(float(&x)[3]);
         Vec3(float x, float y, float z);
         Vec3(const Vec2 &v);
         Vec3(const Vec2 &v, float z);
@@ -66,6 +68,7 @@ namespace Math
 
         Vec4();
         Vec4(float x);
+        Vec4(float(&x)[4]);
         Vec4(float x, float y, float z, float w);
         Vec4(const Vec2 &v);
         Vec4(const Vec2 &v, float z, float w);

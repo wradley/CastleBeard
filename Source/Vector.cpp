@@ -9,6 +9,10 @@ Math::Vec2::Vec2(float X) : x(X), y(X)
 {}
 
 
+Math::Vec2::Vec2(float(&X)[2]) : x(X[0]), y(X[1])
+{}
+
+
 Math::Vec2::Vec2(float X, float Y) : x(X), y(Y)
 {}
 
@@ -101,6 +105,10 @@ Math::Vec3::Vec3() : x(0.0f), y(0.0f), z(0.0f)
 
 
 Math::Vec3::Vec3(float X) : x(X), y(X), z(X)
+{}
+
+
+Math::Vec3::Vec3(float(&X)[3]) : x(X[0]), y(X[1]), z(X[2])
 {}
 
 
@@ -205,6 +213,10 @@ Math::Vec4::Vec4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f)
 
 
 Math::Vec4::Vec4(float X) : x(X), y(X), z(X), w(X)
+{}
+
+
+Math::Vec4::Vec4(float(&X)[4]) : x(X[0]), y(X[1]), z(X[2]), w(X[3])
 {}
 
 
