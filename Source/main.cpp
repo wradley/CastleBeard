@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "../Include/Math/Vector.h"
 #include "../Include/Math/Matrix.h"
+#include "../Include/Math/Quaternion.h"
 
 
 //  2---3
@@ -146,12 +147,18 @@ int main(int argc, char **argv)
     glUseProgram(shader);
     glBindVertexArray(vao);
 
-    Math::Mat4 transpose = Math::Transpose(Math::Mat4(1.0f), Math::Vec3(33.0f));
-    Math::Vec3 position(1.0f);
-
-    auto r1 = transpose * Math::Vec4(position, 1.0f);
-    //std::cout << "[" << m1.values[12] << ", " << m1.values[13] << ", " << m1.values[14] << "]" << std::endl;
+    //Math::Quat qa = Math::Normalize(Math::Quat::FromEuler({ 1.0f, 2.0f, 3.0f }));
+    //Math::Quat qb = Math::Normalize(Math::Quat::FromEuler({ 1.2f, 0.2f, 0.1f }));
+    Math::Quat qa(Math::Vec3(1.0f, 2.0f, 3.0f));
+    Math::Quat qb(Math::Vec3(1.2f, 0.2f, 0.1f));
     
+    Math::Quat qc = qa * qb;
+
+    auto mat = Math::Mat4::FromQuat(qc);
+    Math::Vec4 pos(1.0f);
+
+    pos = mat * pos;
+
     while(!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
@@ -170,9 +177,9 @@ int main(int argc, char **argv)
 	    if (b >= 1.0f) bdir = -1;
 	    if (b <= 0.0f) bdir = 1;
 
-        r += 0.001 * (float) rdir;
-	    g += 0.002 * (float) gdir;
-        b += 0.003 * (float) bdir;
+        r += 0.001f * (float) rdir;
+	    g += 0.002f * (float) gdir;
+        b += 0.003f * (float) bdir;
             
     }
 
