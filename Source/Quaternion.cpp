@@ -1,5 +1,3 @@
-#include "..\Include\Math\Quaternion.h"
-#include "..\Include\Math\Quaternion.h"
 #include <cmath>
 #include "../Include/Math/Quaternion.h"
 #include "../Include/Math/Vector.h"

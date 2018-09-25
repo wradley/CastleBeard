@@ -45,9 +45,12 @@ void CreateQuad()
 const char *vShaderCode = R"(
   #version 410 core
   layout (location = 0) in vec3 aPos;
-  
+
+  uniform mat4 uModel;  
+  uniform mat4 uProj;
+
   void main() {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = uProj * uModel * vec4(aPos.x, aPos.y, aPos.z, 1.0);
   }
 )";
 
@@ -131,6 +134,11 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    // resize for mac retna
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+
     float r = 0.0f;
     int rdir = 1;
     float g = 0.0f;
@@ -138,7 +146,7 @@ int main(int argc, char **argv)
     float b = 0.0f;
     int bdir = 1;
 
-    glViewport(0, 0, 800, 600);
+    //glViewport(0, 0, 800, 600);
     glClearColor(r, g, b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -147,20 +155,16 @@ int main(int argc, char **argv)
     glUseProgram(shader);
     glBindVertexArray(vao);
 
-    //Math::Quat qa = Math::Normalize(Math::Quat::FromEuler({ 1.0f, 2.0f, 3.0f }));
-    //Math::Quat qb = Math::Normalize(Math::Quat::FromEuler({ 1.2f, 0.2f, 0.1f }));
-    Math::Quat qa(Math::Vec3(1.0f, 2.0f, 3.0f));
-    Math::Quat qb(Math::Vec3(1.2f, 0.2f, 0.1f));
-    
-    Math::Quat qc = qa * qb;
-
-    auto mat = Math::Mat4::FromQuat(qc);
-    Math::Vec4 pos(1.0f);
-
-    pos = mat * pos;
+    float zrot = 0.0f;
+    Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(0.0f, 0.0f, zrot))));
+    Math::Mat4 proj(Math::Perspective(60.0f*(3.1459f/180.0f), 800.0f/600.0f, 0.1f, 1000.0f));
 
     while(!glfwWindowShouldClose(window))
     {
+        zrot += 1.0f * (3.1459f/180.0f);
+        Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(0.0f, 0.0f, zrot))));
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, model.values);
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uProj"), 1, GL_FALSE, proj.values);
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(r, g, b, 1.0f);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

@@ -3,6 +3,7 @@
 namespace Math
 {
     class Quat;
+    class Vec3;
     class Vec4;
 
     class Mat4
@@ -24,4 +25,7 @@ namespace Math
 
         float values[16];
     };
+
+    Mat4 Perspective(float fov, float aspect, float nearplane, float farplane);
+    Mat4 LookAt(const Vec3 &eye, const Vec3 &target, const Vec3 &up);
 }
