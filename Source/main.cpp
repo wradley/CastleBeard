@@ -10,12 +10,13 @@
 //  |  /|
 //  |/  |
 //  0---1
-
+float q_sz = 1.0f;
+float q_dst = 0.0f;
 Math::Vec3 verts[] = {
-    {-0.5f, -0.5f, 0.0f},
-    { 0.5f, -0.5f, 0.0f},
-    {-0.5f,  0.5f, 0.0f},
-    { 0.5f,  0.5f, 0.0f},
+    {-q_sz, -q_sz, -q_dst},
+    { q_sz, -q_sz, -q_dst},
+    {-q_sz,  q_sz, -q_dst},
+    { q_sz,  q_sz, -q_dst}
 };
 
 unsigned int indices[] = {
@@ -46,11 +47,12 @@ const char *vShaderCode = R"(
   #version 410 core
   layout (location = 0) in vec3 aPos;
 
-  uniform mat4 uModel;  
   uniform mat4 uProj;
+  uniform mat4 uView;
+  uniform mat4 uModel;
 
   void main() {
-    gl_Position = uProj * uModel * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = uProj * uView * uModel * vec4(aPos.x, aPos.y, aPos.z, 1.0);
   }
 )";
 
@@ -58,8 +60,10 @@ const char *fShaderCode = R"(
   #version 410 core
   out vec4 FragColor;
 
+  uniform vec3 uColor;
+
   void main() {
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    FragColor = vec4(uColor.r, uColor.g, uColor.b, 1.0);
   }
 )";
 
@@ -155,16 +159,22 @@ int main(int argc, char **argv)
     glUseProgram(shader);
     glBindVertexArray(vao);
 
-    float zrot = 0.0f;
-    Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(0.0f, 0.0f, zrot))));
-    Math::Mat4 proj(Math::Perspective(60.0f*(3.1459f/180.0f), 800.0f/600.0f, 0.1f, 1000.0f));
+    float zrot = 0.0f*(3.14159f/180.0f);
+    Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(0.0f, zrot, 0.0f))));
+    Math::Mat4 proj(Math::Perspective(60.0f*(3.14159f/180.0f), 800.0f/600.0f, 0.1f, 100.0f));
+    Math::Mat4 view(Math::LookAt(Math::Vec3(0.0f, 0.0f, 5.0f), Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 1.0f, 0.0f)));
+    //view = Math::Mat4(1.0f);
+    auto result = proj * view * model * Math::Vec4(Math::Vec3(-1.0f, -1.0f, 0.0f), 1.0f);
+    //Math::Mat4 proj(0.5f);
 
     while(!glfwWindowShouldClose(window))
     {
-        zrot += 1.0f * (3.1459f/180.0f);
-        Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(0.0f, 0.0f, zrot))));
+        zrot += 1.0f * (3.14159f/180.0f);
+        Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(zrot, 0.0f, 0.0f))));
         glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, model.values);
         glUniformMatrix4fv(glGetUniformLocation(shader, "uProj"), 1, GL_FALSE, proj.values);
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uView"), 1, GL_FALSE, view.values);
+        glUniform3f(glGetUniformLocation(shader, "uColor"), 1.0f - r, 1.0f - g, 1.0f - b);
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(r, g, b, 1.0f);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -181,9 +191,9 @@ int main(int argc, char **argv)
 	    if (b >= 1.0f) bdir = -1;
 	    if (b <= 0.0f) bdir = 1;
 
-        r += 0.001f * (float) rdir;
-	    g += 0.002f * (float) gdir;
-        b += 0.003f * (float) bdir;
+        r += 0.001f * (float) rdir * 2.0f;
+	    g += 0.002f * (float) gdir * 2.0f;
+        b += 0.003f * (float) bdir * 2.0f;
             
     }
 

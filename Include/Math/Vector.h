@@ -90,4 +90,18 @@ namespace Math
 
         float x, y, z, w;
     };
+
+    float Length(const Vec2 &v);
+    float Length(const Vec3 &v);
+    float Length(const Vec4 &v);
+
+    Vec2 Normalize(const Vec2 &v);
+    Vec3 Normalize(const Vec3 &v);
+    Vec4 Normalize(const Vec4 &v);
+
+    float Dot(const Vec2 &a, const Vec2 &b);
+    float Dot(const Vec3 &a, const Vec3 &b);
+    float Dot(const Vec4 &a, const Vec4 &b);
+
+    Vec3 Cross(const Vec3 &a, const Vec3 &b);
 }

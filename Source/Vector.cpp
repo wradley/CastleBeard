@@ -1,3 +1,4 @@
+#include <cmath>
 #include "../Include/Math/Vector.h"
 
 
@@ -319,4 +320,68 @@ Math::Vec4& Math::Vec4::operator/= (float s)
     z /= s;
     w /= s;
     return *this;
+}
+
+
+float Math::Length(const Vec2 &v) 
+{
+    return sqrt((v.x*v.x) + (v.y*v.y));
+}
+
+
+float Math::Length(const Vec3 &v)
+{
+    return sqrt((v.x*v.x) + (v.y*v.y) + (v.z*v.z));
+}
+
+
+float Math::Length(const Vec4 &v)
+{
+    return sqrt((v.x*v.x) + (v.y*v.y) + (v.z*v.z) + (v.w*v.w));
+}
+
+
+Math::Vec2 Math::Normalize(const Vec2 &v) 
+{
+    return v / Length(v);
+}
+
+
+Math::Vec3 Math::Normalize(const Vec3 &v) 
+{
+    return v / Length(v);
+}
+
+
+Math::Vec4 Math::Normalize(const Vec4 &v) 
+{
+    return v / Length(v);
+}
+
+
+float Math::Dot(const Vec2 &a, const Vec2 &b) 
+{
+    return (a.x*b.x) + (a.y*b.y);
+}
+
+
+float Math::Dot(const Vec3 &a, const Vec3 &b) 
+{
+    return (a.x*b.x) + (a.y*b.y) + (a.z*b.z);
+}
+
+
+float Math::Dot(const Vec4 &a, const Vec4 &b) 
+{
+    return (a.x*b.x) + (a.y*b.y) + (a.z*b.z) + (a.w*b.w);
+}
+
+
+Math::Vec3 Math::Cross(const Vec3 & a, const Vec3 & b)
+{
+    return Vec3(
+        (a.y*b.z) - (a.z*b.y),
+        (a.z*b.x) - (a.x*b.z),
+        (a.x*b.y) - (a.y*b.x)
+    );
 }

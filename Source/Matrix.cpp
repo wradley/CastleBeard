@@ -158,21 +158,13 @@ Math::Mat4 Math::Perspective(float fov, float aspect, float nearplane, float far
 
     float m_00 = 1.0f / (tanHalfFov * aspect);
     float m_11 = 1.0f / tanHalfFov;
-    float m_22 = (-nearplane - farplane) / planeRange;
+    float m_22 = (nearplane + farplane) / planeRange;
     float m_23 = 2.0f * farplane * nearplane / planeRange;
 
-/*    return Mat4({
-        m_00, 0.0f, 0.0f, 0.0f,
-        0.0f, m_11, 0.0f, 0.0f,
-        0.0f, 0.0f, m_22, m_23,
-        0.0f, 0.0f, 1.0f, 0.0f
-    });
-*/
-    
     return Mat4({
         m_00, 0.0f, 0.0f, 0.0f,
         0.0f, m_11, 0.0f, 0.0f,
-        0.0f, 0.0f, m_22, 1.0f,
+        0.0f, 0.0f, m_22, -1.0f,
         0.0f, 0.0f, m_23, 0.0f
     });
 }
@@ -180,5 +172,14 @@ Math::Mat4 Math::Perspective(float fov, float aspect, float nearplane, float far
 
 Math::Mat4 Math::LookAt(const Vec3 &eye, const Vec3 &target, const Vec3 &up)
 {
-    return Mat4();
+    Vec3 f(Normalize(target - eye));
+    Vec3 s(Normalize(Cross(f, up)));
+    Vec3 u(Cross(s, f));
+
+    return Mat4({
+        s.x,          u.x,          -f.x,         0.0f,
+        s.y,          u.y,          -f.y,         0.0f,
+        s.z,          u.z,          -f.z,         0.0f,
+        -Dot(s, eye), -Dot(u, eye), Dot(f, eye),  1.0f
+    });
 }
