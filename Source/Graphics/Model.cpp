@@ -1,10 +1,11 @@
 #include "../../Include/Graphics/Model.h"
 
 
-Graphics::Model::Model(std::vector<MeshData*> meshDatas)
+Graphics::Model::Model(MeshDataPointers m)
 {
-    for (MeshData *md : meshDatas) {
-        _meshes.push_back(new Mesh(*md));
+    unsigned int numMeshDatas = m.getNumMeshDatas();
+    for (unsigned int i = 0; i < numMeshDatas; ++i) {
+        _meshes.push_back(new Mesh(*m.getMeshData(i)));
     }
 }
 

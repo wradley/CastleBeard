@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.11.0)
 project(CastleBeard)
 set(CMAKE_CXX_STANDARD 14)
 
+# defines
+set(ASSETS_DIR_FILEPATH CACHE PATH "Filepath to assets directory")
+configure_file(${PROJECT_SOURCE_DIR}/Include/Defines.h.in ${PROJECT_SOURCE_DIR}/Include/Defines.h)
+
 # glfw
 add_subdirectory(Libraries/glfw-3.2.1)
 set(GLFW_INCLUDE_DIR Libraries/glfw-3.2.1/include)
@@ -34,6 +38,7 @@ set(ALL_SRC_FILES ${GLAD_SRC}
     Source/Graphics/MeshData.cpp
     Source/Graphics/Mesh.cpp
     Source/Graphics/Model.cpp
+    Source/Graphics/Importer.cpp
 )
 
 # build

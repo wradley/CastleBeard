@@ -9,7 +9,7 @@ namespace Graphics
     {
     public:
 
-        Model(std::vector<MeshData*> meshes);
+        Model(MeshDataPointers m);
         ~Model();
         
         void draw();

@@ -1,3 +1,6 @@
+# cmake define file
+Include/Defines.h
+
 # vs cache
 .vs/
 

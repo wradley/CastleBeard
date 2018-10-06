@@ -1,82 +1,40 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <fbxsdk.h>
 #include <vector>
 #include <string>
+#include <fstream>
 #include "../Include/Math/Vector.h"
+#include "../Include/Math/Math.h"
 #include "../Include/Math/Matrix.h"
 #include "../Include/Math/Quaternion.h"
 #include "../Include/Graphics/Model.h"
+#include "../Include/Defines.h"
+#include "../Include/Graphics/Importer.h"
+
+const std::string ASSETS_DIR(ASSETS_DIR_FILEPATH);
 
 
-void GetMeshFromFBX(FbxManager *manager, FbxMesh *mesh, Graphics::MeshData &retMesh)
+std::string LoadTextFile(const std::string &filepath)
 {
-    // make sure mesh is triangulated
-    if (!mesh->IsTriangleMesh()) {
-        FbxGeometryConverter converter(manager);
-        mesh = (FbxMesh*)converter.Triangulate(mesh, true);
-        if (!mesh) {
-            std::cout << "Error triangulating mesh" << std::endl;
-            return;
-        } if (mesh->GetAttributeType() != FbxNodeAttribute::EType::eMesh) {
-            std::cout << "Error triangulating mesh, fbx returned non-mesh attribute" << std::endl;
-            return;
-        }
+    // open and check file
+    std::ifstream input(filepath, std::ios::in | std::ios::binary);
+    if (!input.is_open()) {
+        std::cout << "Could not open file: " << filepath << std::endl;
+        return std::string();
     }
 
-    auto numVerts = mesh->GetControlPointsCount();
-    auto numIndices = mesh->GetPolygonVertexCount();
-    auto fbxverts = mesh->GetControlPoints();
-    auto fbxindices = mesh->GetPolygonVertices();
-    retMesh.vertices.resize(numVerts);
-    retMesh.indices.resize(numIndices);
+    // alloc space in string
+    std::string text;
+    input.seekg(0, std::ios::end);
+    text.resize(input.tellg());
+    input.seekg(0, std::ios::beg);
 
-    for (int i = 0; i < numVerts; ++i) {
-        retMesh.vertices[i].position.x = (float) fbxverts[i][0];
-        retMesh.vertices[i].position.y = (float) fbxverts[i][1];
-        retMesh.vertices[i].position.z = (float) fbxverts[i][2];
-    }
-
-    for (int i = 0; i < numIndices; ++i) {
-        retMesh.indices[i] = fbxindices[i];
-    }
+    // load and return string
+    input.read(&text[0], text.size());
+    return text;
 }
 
-void TraverseFBXTree(FbxManager *manager, FbxNode *node, std::vector<Graphics::MeshData*> &retMeshDatas)
-{
-    for (int i = 0; i < node->GetNodeAttributeCount(); ++i) {
-        if (node->GetNodeAttributeByIndex(i)->GetAttributeType() == FbxNodeAttribute::EType::eMesh) {
-            Graphics::MeshData *mesh = new Graphics::MeshData;
-            GetMeshFromFBX(manager, (FbxMesh*)node->GetNodeAttributeByIndex(i), *mesh);
-            retMeshDatas.push_back(mesh);
-        }
-    }
-    
-    for (int i = 0; i < node->GetChildCount(); ++i) {
-        TraverseFBXTree(manager, node->GetChild(i), retMeshDatas);
-    }
-}
-
-void LoadFBXFile(const std::string &filepath, std::vector<Graphics::MeshData*> &retMeshDatas)
-{
-    FbxManager *manager = FbxManager::Create();
-    FbxIOSettings *ios = FbxIOSettings::Create(manager, IOSROOT);
-    manager->SetIOSettings(ios);
-
-    FbxImporter *importer = FbxImporter::Create(manager, "");
-    if (!importer->Initialize(filepath.c_str(), -1, manager->GetIOSettings())) {
-        std::cout << "Could not initialize FBX Importer: " << importer->GetStatus().GetErrorString() << std::endl;
-        return;
-    }
-
-    FbxScene *scene = FbxScene::Create(manager, "");
-    importer->Import(scene);
-    importer->Destroy();
-
-    FbxNode *root = scene->GetRootNode();
-    TraverseFBXTree(manager, root, retMeshDatas);
-}
 
 //  2---3
 //  |  /|
@@ -118,34 +76,9 @@ void CreateQuad()
 
 void CreateCube()
 {
-    std::vector<Graphics::MeshData*> modelData;
-    LoadFBXFile("C:/Users/calla/Desktop/Cube.fbx", modelData);
-    models.push_back(new Graphics::Model(modelData));
+    Graphics::Importer importer(ASSETS_DIR + "/Cube.fbx");
+    models.push_back(new Graphics::Model(importer.getMeshDataPointers()));
 }
-
-const char *vShaderCode = R"(
-  #version 410 core
-  layout (location = 0) in vec3 aPos;
-
-  uniform mat4 uProj;
-  uniform mat4 uView;
-  uniform mat4 uModel;
-
-  void main() {
-    gl_Position = uProj * uView * uModel * vec4(aPos.x, aPos.y, aPos.z, 1.0);
-  }
-)";
-
-const char *fShaderCode = R"(
-  #version 410 core
-  out vec4 FragColor;
-
-  uniform vec3 uColor;
-
-  void main() {
-    FragColor = vec4(uColor.r, uColor.g, uColor.b, 1.0);
-  }
-)";
 
 unsigned int shader;
 
@@ -153,6 +86,12 @@ void CreateShader()
 {
     int success;
     char infoLog[1024];
+
+    std::string vertexString = LoadTextFile(ASSETS_DIR + "/vertex.glsl");
+    std::string fragmentString = LoadTextFile(ASSETS_DIR + "/fragment.glsl");
+
+    const char *vShaderCode = vertexString.c_str();
+    const char *fShaderCode = fragmentString.c_str();
     
     // vertex
     unsigned int vShader = glCreateShader(GL_VERTEX_SHADER);
@@ -235,20 +174,18 @@ int main(int argc, char **argv)
     glClear(GL_COLOR_BUFFER_BIT);
 
     CreateShader();
-    //CreateQuad();
     CreateCube();
     glUseProgram(shader);
-    //glBindVertexArray(vao);
 
-    float zrot = 0.0f*(3.14159f/180.0f);
+    float zrot = 0.0f;
     Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(0.0f, zrot, 0.0f))));
-    Math::Mat4 proj(Math::Perspective(60.0f*(3.14159f/180.0f), 800.0f/600.0f, 0.1f, 100.0f));
+    Math::Mat4 proj(Math::Perspective(Math::ToRadians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f));
     Math::Mat4 view(Math::LookAt(Math::Vec3(0.0f, 0.0f, 5.0f), Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 1.0f, 0.0f)));
     auto result = proj * view * model * Math::Vec4(Math::Vec3(-1.0f, -1.0f, 0.0f), 1.0f);
 
     while(!glfwWindowShouldClose(window))
     {
-        zrot += 1.0f * (3.14159f/180.0f);
+        zrot += Math::ToRadians(1.0f);
         Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(zrot, 0.0f, 0.0f))));
         glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, model.values);
         glUniformMatrix4fv(glGetUniformLocation(shader, "uProj"), 1, GL_FALSE, proj.values);
