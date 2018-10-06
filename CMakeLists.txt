@@ -30,6 +30,10 @@ set(ALL_SRC_FILES ${GLAD_SRC}
     Source/Vector.cpp
     Source/Matrix.cpp
     Source/Quaternion.cpp
+    Source/Graphics/Vertex.cpp
+    Source/Graphics/MeshData.cpp
+    Source/Graphics/Mesh.cpp
+    Source/Graphics/Model.cpp
 )
 
 # build

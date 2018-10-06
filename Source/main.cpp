@@ -7,82 +7,10 @@
 #include "../Include/Math/Vector.h"
 #include "../Include/Math/Matrix.h"
 #include "../Include/Math/Quaternion.h"
+#include "../Include/Graphics/Model.h"
 
-class Vertex
-{
-public:
-    Math::Vec3 position;
-};
 
-class MeshData
-{
-public:
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-};
-
-class Mesh
-{
-public:
-    Mesh(const MeshData &m)
-    {
-        glGenVertexArrays(1, &_vao);
-        glBindVertexArray(_vao);
-
-        glGenBuffers(1, &_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-        glBufferData(GL_ARRAY_BUFFER, m.vertices.size() * sizeof(Vertex), &m.vertices[0], GL_STATIC_DRAW);
-
-        glGenBuffers(1, &_ebo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.indices.size() * sizeof(unsigned int), &m.indices[0], GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Math::Vec3), (void*)0);
-        glEnableVertexAttribArray(0);
-
-        _numIndices = m.indices.size();
-    }
-    Mesh(const Mesh &m) : _vao(m._vao), _vbo(m._vbo), _ebo(m._ebo), _numIndices(m._numIndices)
-    {}
-    void draw()
-    {
-        glBindVertexArray(_vao);
-        glDrawElements(GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0);
-    }
-    void free()
-    {
-        glDeleteVertexArrays(1, &_vao);
-        glDeleteBuffers(1, &_vbo);
-        glDeleteBuffers(1, &_ebo);
-    }
-    unsigned int _vao, _vbo, _ebo, _numIndices;
-};
-
-class Model
-{
-public:
-    Model(std::vector<MeshData*> meshDatas)
-    {
-        for (MeshData *md : meshDatas) {
-            meshes.push_back(Mesh(*md));
-        }
-    }
-    void draw()
-    {
-        for (auto &mesh : meshes) {
-            mesh.draw();
-        }
-    }
-    void free()
-    {
-        for (auto &mesh : meshes) {
-            mesh.free();
-        }
-    }
-    std::vector<Mesh> meshes;
-};
-
-void GetMeshFromFBX(FbxManager *manager, FbxMesh *mesh, MeshData &retMesh)
+void GetMeshFromFBX(FbxManager *manager, FbxMesh *mesh, Graphics::MeshData &retMesh)
 {
     // make sure mesh is triangulated
     if (!mesh->IsTriangleMesh()) {
@@ -105,9 +33,9 @@ void GetMeshFromFBX(FbxManager *manager, FbxMesh *mesh, MeshData &retMesh)
     retMesh.indices.resize(numIndices);
 
     for (int i = 0; i < numVerts; ++i) {
-        retMesh.vertices[i].position.x = fbxverts[i][0];
-        retMesh.vertices[i].position.y = fbxverts[i][1];
-        retMesh.vertices[i].position.z = fbxverts[i][2];
+        retMesh.vertices[i].position.x = (float) fbxverts[i][0];
+        retMesh.vertices[i].position.y = (float) fbxverts[i][1];
+        retMesh.vertices[i].position.z = (float) fbxverts[i][2];
     }
 
     for (int i = 0; i < numIndices; ++i) {
@@ -115,11 +43,11 @@ void GetMeshFromFBX(FbxManager *manager, FbxMesh *mesh, MeshData &retMesh)
     }
 }
 
-void TraverseFBXTree(FbxManager *manager, FbxNode *node, std::vector<MeshData*> &retMeshDatas)
+void TraverseFBXTree(FbxManager *manager, FbxNode *node, std::vector<Graphics::MeshData*> &retMeshDatas)
 {
     for (int i = 0; i < node->GetNodeAttributeCount(); ++i) {
         if (node->GetNodeAttributeByIndex(i)->GetAttributeType() == FbxNodeAttribute::EType::eMesh) {
-            MeshData *mesh = new MeshData;
+            Graphics::MeshData *mesh = new Graphics::MeshData;
             GetMeshFromFBX(manager, (FbxMesh*)node->GetNodeAttributeByIndex(i), *mesh);
             retMeshDatas.push_back(mesh);
         }
@@ -130,7 +58,7 @@ void TraverseFBXTree(FbxManager *manager, FbxNode *node, std::vector<MeshData*> 
     }
 }
 
-void LoadFBXFile(const std::string &filepath, std::vector<MeshData*> &retMeshDatas)
+void LoadFBXFile(const std::string &filepath, std::vector<Graphics::MeshData*> &retMeshDatas)
 {
     FbxManager *manager = FbxManager::Create();
     FbxIOSettings *ios = FbxIOSettings::Create(manager, IOSROOT);
@@ -169,7 +97,7 @@ unsigned int indices[] = {
 };
 
 unsigned int vao, vbo, ebo;
-std::vector<Model> models;
+std::vector<Graphics::Model*> models;
 
 void CreateQuad()
 {
@@ -190,9 +118,9 @@ void CreateQuad()
 
 void CreateCube()
 {
-    std::vector<MeshData*> modelData;
+    std::vector<Graphics::MeshData*> modelData;
     LoadFBXFile("C:/Users/calla/Desktop/Cube.fbx", modelData);
-    models.push_back(Model(modelData));
+    models.push_back(new Graphics::Model(modelData));
 }
 
 const char *vShaderCode = R"(
@@ -328,7 +256,7 @@ int main(int argc, char **argv)
         glUniform3f(glGetUniformLocation(shader, "uColor"), 1.0f - r, 1.0f - g, 1.0f - b);
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(r, g, b, 1.0f);
-        for (auto &m : models) m.draw();
+        for (auto &m : models) m->draw();
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
