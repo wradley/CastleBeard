@@ -1,10 +1,154 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <fbxsdk.h>
+#include <vector>
+#include <string>
 #include "../Include/Math/Vector.h"
 #include "../Include/Math/Matrix.h"
 #include "../Include/Math/Quaternion.h"
 
+class Vertex
+{
+public:
+    Math::Vec3 position;
+};
+
+class MeshData
+{
+public:
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+};
+
+class Mesh
+{
+public:
+    Mesh(const MeshData &m)
+    {
+        glGenVertexArrays(1, &_vao);
+        glBindVertexArray(_vao);
+
+        glGenBuffers(1, &_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+        glBufferData(GL_ARRAY_BUFFER, m.vertices.size() * sizeof(Vertex), &m.vertices[0], GL_STATIC_DRAW);
+
+        glGenBuffers(1, &_ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.indices.size() * sizeof(unsigned int), &m.indices[0], GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Math::Vec3), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        _numIndices = m.indices.size();
+    }
+    Mesh(const Mesh &m) : _vao(m._vao), _vbo(m._vbo), _ebo(m._ebo), _numIndices(m._numIndices)
+    {}
+    void draw()
+    {
+        glBindVertexArray(_vao);
+        glDrawElements(GL_TRIANGLES, _numIndices, GL_UNSIGNED_INT, 0);
+    }
+    void free()
+    {
+        glDeleteVertexArrays(1, &_vao);
+        glDeleteBuffers(1, &_vbo);
+        glDeleteBuffers(1, &_ebo);
+    }
+    unsigned int _vao, _vbo, _ebo, _numIndices;
+};
+
+class Model
+{
+public:
+    Model(std::vector<MeshData*> meshDatas)
+    {
+        for (MeshData *md : meshDatas) {
+            meshes.push_back(Mesh(*md));
+        }
+    }
+    void draw()
+    {
+        for (auto &mesh : meshes) {
+            mesh.draw();
+        }
+    }
+    void free()
+    {
+        for (auto &mesh : meshes) {
+            mesh.free();
+        }
+    }
+    std::vector<Mesh> meshes;
+};
+
+void GetMeshFromFBX(FbxManager *manager, FbxMesh *mesh, MeshData &retMesh)
+{
+    // make sure mesh is triangulated
+    if (!mesh->IsTriangleMesh()) {
+        FbxGeometryConverter converter(manager);
+        mesh = (FbxMesh*)converter.Triangulate(mesh, true);
+        if (!mesh) {
+            std::cout << "Error triangulating mesh" << std::endl;
+            return;
+        } if (mesh->GetAttributeType() != FbxNodeAttribute::EType::eMesh) {
+            std::cout << "Error triangulating mesh, fbx returned non-mesh attribute" << std::endl;
+            return;
+        }
+    }
+
+    auto numVerts = mesh->GetControlPointsCount();
+    auto numIndices = mesh->GetPolygonVertexCount();
+    auto fbxverts = mesh->GetControlPoints();
+    auto fbxindices = mesh->GetPolygonVertices();
+    retMesh.vertices.resize(numVerts);
+    retMesh.indices.resize(numIndices);
+
+    for (int i = 0; i < numVerts; ++i) {
+        retMesh.vertices[i].position.x = fbxverts[i][0];
+        retMesh.vertices[i].position.y = fbxverts[i][1];
+        retMesh.vertices[i].position.z = fbxverts[i][2];
+    }
+
+    for (int i = 0; i < numIndices; ++i) {
+        retMesh.indices[i] = fbxindices[i];
+    }
+}
+
+void TraverseFBXTree(FbxManager *manager, FbxNode *node, std::vector<MeshData*> &retMeshDatas)
+{
+    for (int i = 0; i < node->GetNodeAttributeCount(); ++i) {
+        if (node->GetNodeAttributeByIndex(i)->GetAttributeType() == FbxNodeAttribute::EType::eMesh) {
+            MeshData *mesh = new MeshData;
+            GetMeshFromFBX(manager, (FbxMesh*)node->GetNodeAttributeByIndex(i), *mesh);
+            retMeshDatas.push_back(mesh);
+        }
+    }
+    
+    for (int i = 0; i < node->GetChildCount(); ++i) {
+        TraverseFBXTree(manager, node->GetChild(i), retMeshDatas);
+    }
+}
+
+void LoadFBXFile(const std::string &filepath, std::vector<MeshData*> &retMeshDatas)
+{
+    FbxManager *manager = FbxManager::Create();
+    FbxIOSettings *ios = FbxIOSettings::Create(manager, IOSROOT);
+    manager->SetIOSettings(ios);
+
+    FbxImporter *importer = FbxImporter::Create(manager, "");
+    if (!importer->Initialize(filepath.c_str(), -1, manager->GetIOSettings())) {
+        std::cout << "Could not initialize FBX Importer: " << importer->GetStatus().GetErrorString() << std::endl;
+        return;
+    }
+
+    FbxScene *scene = FbxScene::Create(manager, "");
+    importer->Import(scene);
+    importer->Destroy();
+
+    FbxNode *root = scene->GetRootNode();
+    TraverseFBXTree(manager, root, retMeshDatas);
+}
 
 //  2---3
 //  |  /|
@@ -25,6 +169,7 @@ unsigned int indices[] = {
 };
 
 unsigned int vao, vbo, ebo;
+std::vector<Model> models;
 
 void CreateQuad()
 {
@@ -41,6 +186,13 @@ void CreateQuad()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0); 
+}
+
+void CreateCube()
+{
+    std::vector<MeshData*> modelData;
+    LoadFBXFile("C:/Users/calla/Desktop/Cube.fbx", modelData);
+    models.push_back(Model(modelData));
 }
 
 const char *vShaderCode = R"(
@@ -155,17 +307,16 @@ int main(int argc, char **argv)
     glClear(GL_COLOR_BUFFER_BIT);
 
     CreateShader();
-    CreateQuad();
+    //CreateQuad();
+    CreateCube();
     glUseProgram(shader);
-    glBindVertexArray(vao);
+    //glBindVertexArray(vao);
 
     float zrot = 0.0f*(3.14159f/180.0f);
     Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(0.0f, zrot, 0.0f))));
     Math::Mat4 proj(Math::Perspective(60.0f*(3.14159f/180.0f), 800.0f/600.0f, 0.1f, 100.0f));
     Math::Mat4 view(Math::LookAt(Math::Vec3(0.0f, 0.0f, 5.0f), Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 1.0f, 0.0f)));
-    //view = Math::Mat4(1.0f);
     auto result = proj * view * model * Math::Vec4(Math::Vec3(-1.0f, -1.0f, 0.0f), 1.0f);
-    //Math::Mat4 proj(0.5f);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -177,7 +328,8 @@ int main(int argc, char **argv)
         glUniform3f(glGetUniformLocation(shader, "uColor"), 1.0f - r, 1.0f - g, 1.0f - b);
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(r, g, b, 1.0f);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        for (auto &m : models) m.draw();
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
