@@ -78,11 +78,12 @@ static bool GetMeshDataFromFBXMesh(
         }
     }
 
+    // compress vertices (actually the use indices)
     else {
         // generate new indices for combined vertex structure
         std::vector<std::tuple<unsigned int, Graphics::Vertex, unsigned int>> indexVertPairs; // vert index, vert, new index
 
-        // push everything in list
+        // push everything in list -- O(n)
         auto numFbxIndices = mesh->GetPolygonVertexCount();
         for (int i = 0; i < numFbxIndices; ++i)
         {
@@ -91,7 +92,7 @@ static bool GetMeshDataFromFBXMesh(
             indexVertPairs.push_back(std::make_tuple(i, vertex, 0));
         }
 
-        // sort by vertex
+        // sort by vertex -- O(n log n)
         std::sort(indexVertPairs.begin(), indexVertPairs.end(), [](
             const std::tuple<unsigned int, Graphics::Vertex, unsigned int> &a,
             const std::tuple<unsigned int, Graphics::Vertex, unsigned int> &b
@@ -105,7 +106,7 @@ static bool GetMeshDataFromFBXMesh(
             return std::get<0>(a) < std::get<0>(b);
         });
 
-        // make new indices
+        // make new indices -- O(n)
         unsigned int currIndex = 0;
         for (int i = 0; i < indexVertPairs.size(); ++i) {
             if (i == 0) {
@@ -121,7 +122,7 @@ static bool GetMeshDataFromFBXMesh(
             }
         }
 
-        // sort back to orig. order by old index
+        // sort back to orig. order by old index -- O(n log n)
         std::sort(indexVertPairs.begin(), indexVertPairs.end(), [](
             const std::tuple<unsigned int, Graphics::Vertex, unsigned int> &a,
             const std::tuple<unsigned int, Graphics::Vertex, unsigned int> &b
@@ -129,16 +130,20 @@ static bool GetMeshDataFromFBXMesh(
             return (std::get<0>(a) < std::get<0>(b));
         });
 
-        // copy new indices into retmesh
+        // copy new indices into retmesh -- O(n)
         for (int i = 0; i < indexVertPairs.size(); ++i)
             retMesh.indices.push_back(std::get<2>(indexVertPairs[i]));
 
-        // copy verts into retmesh (removing duplicates)
+        // copy verts into retmesh (removing duplicates) -- O(n)
         retMesh.vertices.resize(currIndex + 1);
         for (int i = 0; i < indexVertPairs.size(); ++i) {
             retMesh.vertices[std::get<2>(indexVertPairs[i])] = std::get<1>(indexVertPairs[i]);
         }
     }
+
+    // total -- O(n) + O(n log n) + O(n) + O(n log n) + O(n) + O(n) = O(n) + O(n log n) = O(n log n)
+    // room for improvement but better than previous O(n*n)
+    // tends to be about 3x slower than not compressing the vertices
 
     return true;
 }

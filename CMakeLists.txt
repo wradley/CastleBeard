@@ -31,14 +31,15 @@ endif()
 set(GLAD_SRC Libraries/glad/src/glad.c)
 set(ALL_SRC_FILES ${GLAD_SRC}
     Source/main.cpp
-    Source/Vector.cpp
-    Source/Matrix.cpp
-    Source/Quaternion.cpp
+    Source/Math/Vector.cpp
+    Source/Math/Matrix.cpp
+    Source/Math/Quaternion.cpp
     Source/Graphics/Vertex.cpp
     Source/Graphics/MeshData.cpp
     Source/Graphics/Mesh.cpp
     Source/Graphics/Model.cpp
     Source/Graphics/Importer.cpp
+    Source/Graphics/Shader.cpp
 )
 
 # build

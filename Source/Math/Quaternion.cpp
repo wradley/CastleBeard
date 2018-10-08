@@ -1,6 +1,6 @@
 #include <cmath>
-#include "../Include/Math/Quaternion.h"
-#include "../Include/Math/Vector.h"
+#include "../../Include/Math/Quaternion.h"
+#include "../../Include/Math/Vector.h"
 
 
 Math::Quat::Quat()

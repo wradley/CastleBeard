@@ -11,6 +11,7 @@
 #include "../Include/Graphics/Model.h"
 #include "../Include/Defines.h"
 #include "../Include/Graphics/Importer.h"
+#include "../Include/Graphics/Shader.h"
 
 const std::string ASSETS_DIR(ASSETS_DIR_FILEPATH);
 
@@ -79,102 +80,18 @@ std::string LoadTextFile(const std::string &filepath)
 }
 
 
-//  2---3
-//  |  /|
-//  |/  |
-//  0---1
-float q_sz = 1.0f;
-float q_dst = 0.0f;
-Math::Vec3 verts[] = {
-    {-q_sz, -q_sz, -q_dst},
-    { q_sz, -q_sz, -q_dst},
-    {-q_sz,  q_sz, -q_dst},
-    { q_sz,  q_sz, -q_dst}
-};
 
-unsigned int indices[] = {
-    0, 2, 3,
-    3, 1, 0
-};
-
-unsigned int vao, vbo, ebo;
-std::vector<Graphics::Model*> models;
-
-void CreateQuad()
-{
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0); 
-}
+Graphics::Model *model1;
+Graphics::Model *model2;
 
 void CreateCube()
 {
     Graphics::Importer importer;
-    importer.loadFile(ASSETS_DIR + "/Cube.fbx");
-    models.push_back(new Graphics::Model(importer.getMeshDataPointers()));
-}
+    importer.loadFile(ASSETS_DIR + "/SphereFlat.fbx");
+    model1 = new Graphics::Model(importer.getMeshDataPointers());
 
-unsigned int shader;
-
-void CreateShader()
-{
-    int success;
-    char infoLog[1024];
-
-    std::string vertexString = LoadTextFile(ASSETS_DIR + "/vertex.glsl");
-    std::string fragmentString = LoadTextFile(ASSETS_DIR + "/fragment.glsl");
-
-    const char *vShaderCode = vertexString.c_str();
-    const char *fShaderCode = fragmentString.c_str();
-    
-    // vertex
-    unsigned int vShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vShader, 1, &vShaderCode, NULL);
-    glCompileShader(vShader);
-    glGetShaderiv(vShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vShader, 1024, NULL, infoLog);
-        std::cout << "Error compiling vertex shader: " << infoLog << std::endl;
-        return;
-    }
-
-    // fragment
-    unsigned int fShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fShader, 1, &fShaderCode, NULL);
-    glCompileShader(fShader);
-    glGetShaderiv(fShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fShader, 1024, NULL, infoLog);
-        std::cout << "Error compiling fragment shader: " << infoLog << std::endl;
-        glDeleteShader(vShader);
-        return;
-    }
-
-    shader = glCreateProgram();
-    glAttachShader(shader, vShader);
-    glAttachShader(shader, fShader);
-    glLinkProgram(shader);
-    glGetProgramiv(shader, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-        std::cout << "Error linking shader program: " << infoLog << std::endl;
-        glDeleteShader(vShader);
-        glDeleteShader(fShader);
-        return;
-    }
-
-    glDeleteShader(vShader);
-    glDeleteShader(fShader);
+    importer.loadFile(ASSETS_DIR + "/Sphere.fbx");
+    model2 = new Graphics::Model(importer.getMeshDataPointers());
 }
 
 int main(int argc, char **argv) 
@@ -208,7 +125,7 @@ int main(int argc, char **argv)
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
 
-    float r = 0.0f;
+    float r = 0.5f;
     int rdir = 1;
     float g = 0.0f;
     int gdir = 1;
@@ -220,9 +137,16 @@ int main(int argc, char **argv)
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    CreateShader();
+    //CreateShader();
+    std::string vCode = LoadTextFile(ASSETS_DIR + "/vertex.glsl");
+    std::string fCode = LoadTextFile(ASSETS_DIR + "/fragment.glsl");
+    const char *vCodeC = vCode.c_str();
+    const char *fCodeC = fCode.c_str();
+    Graphics::Shader shader;
+    shader.compileFiles(vCodeC, fCodeC);
+    shader.bind();
     CreateCube();
-    glUseProgram(shader);
+    //glUseProgram(shader);
 
     float zrot = 0.0f;
     const Math::Vec3 OG_CAM_POS(0.0f, 0.0f, 5.0f);
@@ -277,30 +201,41 @@ int main(int argc, char **argv)
         //zrot += Math::ToRadians(1.0f);
         //if (isClicking) zrot -= Math::ToRadians(2.0f);
         //Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(zrot, 0.0f, 0.0f))));
-        glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, model.values);
-        glUniformMatrix4fv(glGetUniformLocation(shader, "uProj"), 1, GL_FALSE, proj.values);
-        glUniformMatrix4fv(glGetUniformLocation(shader, "uView"), 1, GL_FALSE, view.values);
-        glUniform3f(glGetUniformLocation(shader, "uColor"), 1.0f - r, 1.0f - g, 1.0f - b);
+
+        shader.setMat4("uProj", proj);
+        shader.setMat4("uView", view);
+        shader.setVec3("uColor", Math::Vec3(1.0f - r, 1.0f - g, 1.0f - b));
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(r, g, b, 1.0f);
-        //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        for (auto &m : models) m->draw();
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        
+        shader.setMat4("uModel", Math::Transpose(model.values, Math::Vec3(1.1f, 1.1f, 0.0f)));
+        model1->draw();
+        
+        shader.setMat4("uModel", Math::Transpose(model.values, Math::Vec3(-1.1f, 1.1f, 0.0f)));
+        model2->draw();
+
+        shader.setMat4("uModel", Math::Transpose(model.values, Math::Vec3(-1.1f, -1.1f, 0.0f)));
+        model1->draw();
+
+        shader.setMat4("uModel", Math::Transpose(model.values, Math::Vec3(1.1f, -1.1f, 0.0f)));
+        model2->draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
         
 	    if (r >= 1.0f) rdir = -1;
-	    if (r <= 0.0f) rdir = 1;
+	    if (r <= 0.1f) rdir = 1;
         
 	    if (g >= 1.0f) gdir = -1;
-	    if (g <= 0.0f) gdir = 1;
+	    if (g <= 0.1f) gdir = 1;
         
 	    if (b >= 1.0f) bdir = -1;
-	    if (b <= 0.0f) bdir = 1;
+	    if (b <= 0.1f) bdir = 1;
 
         r += 0.001f * (float) rdir * 2.0f;
-	    g += 0.002f * (float) gdir * 2.0f;
+	    g += 0.0009f * (float) gdir * 2.0f;
         b += 0.003f * (float) bdir * 2.0f;
             
     }

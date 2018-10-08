@@ -1,5 +1,5 @@
 #include <cmath>
-#include "../Include/Math/Vector.h"
+#include "../../Include/Math/Vector.h"
 
 
 Math::Vec2::Vec2() : x(0.0f), y(0.0f)

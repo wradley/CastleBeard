@@ -26,6 +26,7 @@ namespace Math
         float values[16];
     };
 
+    Mat4 Transpose(const Mat4 &m, const Vec3 &v);
     Mat4 Perspective(float fov, float aspect, float nearplane, float farplane);
     Mat4 LookAt(const Vec3 &eye, const Vec3 &target, const Vec3 &up);
 }

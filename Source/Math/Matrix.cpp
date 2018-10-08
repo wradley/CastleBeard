@@ -1,7 +1,8 @@
 #include <cmath>
-#include "../Include/Math/Matrix.h"
-#include "../Include/Math/Vector.h"
-#include "../Include/Math/Quaternion.h"
+#include "../../Include/Math/Matrix.h"
+#include "../../Include/Math/Vector.h"
+#include "../../Include/Math/Quaternion.h"
+#include "../../Include/Math/Matrix.h"
 
 Math::Mat4::Mat4() : values{
     0.0f, 0.0f, 0.0f, 0.0f,
@@ -148,6 +149,18 @@ Math::Mat4 Math::Mat4::operator*(const Mat4 & other) const
     r[15] = (m[3] * o[12]) + (m[7] * o[13]) + (m[11] * o[14]) + (m[15] * o[15]);
 
     return rtrn;
+}
+
+
+Math::Mat4 Math::Transpose(const Mat4 & m, const Vec3 & v)
+{
+    Mat4 retMat(m);
+
+    retMat.values[12] += v.x;
+    retMat.values[13] += v.y;
+    retMat.values[14] += v.z;
+
+    return retMat;
 }
 
 
