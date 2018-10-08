@@ -11,7 +11,7 @@ namespace Math
 
         Quat();
         Quat(const Vec3 &euler);
-        Quat(const Vec4 &vec);
+        Quat(const Vec4 &quat);
         Quat(const Quat &quat);
         Quat& operator= (const Quat &quat);
         Quat(float X, float Y, float Z, float W);

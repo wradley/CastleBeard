@@ -9,10 +9,9 @@ namespace Graphics
     public:
 
         Importer();
-        Importer(const std::string &fp);
         ~Importer();
 
-        void loadFile(const std::string &fp);
+        bool loadFile(const std::string &fp, bool compressVertices = true);
         MeshDataPointers getMeshDataPointers();
 
     private:

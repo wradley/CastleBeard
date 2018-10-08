@@ -28,6 +28,8 @@ namespace Math
         Vec2& operator-= (const Vec2 &v);
         Vec2& operator*= (float s);
         Vec2& operator/= (float s);
+
+        bool operator== (const Vec2 &v);
         
         float x, y;
     };
@@ -57,6 +59,8 @@ namespace Math
         Vec3& operator-= (const Vec3 &v);
         Vec3& operator*= (float s);
         Vec3& operator/= (float s);
+
+        bool operator== (const Vec3 &v);
         
         float x, y, z;
     };
@@ -87,6 +91,8 @@ namespace Math
         Vec4& operator-= (const Vec4 &v);
         Vec4& operator*= (float s);
         Vec4& operator/= (float s);
+
+        bool operator== (const Vec4 &v);
 
         float x, y, z, w;
     };

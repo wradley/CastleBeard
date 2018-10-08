@@ -11,6 +11,9 @@ namespace Graphics
         Vertex& operator= (const Vertex &v);
         ~Vertex();
 
+        bool operator== (const Vertex &v);
+
         Math::Vec3 position;
+        Math::Vec3 normal;
     };
 }

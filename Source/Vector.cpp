@@ -98,6 +98,12 @@ Math::Vec2& Math::Vec2::operator/= (float s)
 }
 
 
+bool Math::Vec2::operator==(const Vec2 & v)
+{
+    return (x == v.x) && (y == v.y);
+}
+
+
 // ============================================================================
 
 
@@ -203,6 +209,11 @@ Math::Vec3& Math::Vec3::operator/= (float s)
     y /= s;
     z /= s;
     return *this;
+}
+
+bool Math::Vec3::operator==(const Vec3 & v)
+{
+    return (x == v.x) && (y == v.y) && (z == v.z);
 }
 
 
@@ -320,6 +331,12 @@ Math::Vec4& Math::Vec4::operator/= (float s)
     z /= s;
     w /= s;
     return *this;
+}
+
+
+bool Math::Vec4::operator==(const Vec4 & v)
+{
+    return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w);
 }
 
 

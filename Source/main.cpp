@@ -14,6 +14,49 @@
 
 const std::string ASSETS_DIR(ASSETS_DIR_FILEPATH);
 
+struct UserInput {
+    double scrollOffset;
+    double lastMouseX;
+    double lastMouseY;
+    double currMouseX;
+    double currMouseY;
+    bool isClicking;
+    bool isRClicking;
+    int clickTime;
+    UserInput()
+    {
+        scrollOffset = 0.0;
+        lastMouseX = 0.0;
+        lastMouseY = 0.0;
+        currMouseX = 0.0;
+        currMouseY = 0.0;
+        isClicking = false;
+        isRClicking = false;
+        clickTime = 0;
+    }
+} userInput;
+
+void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+{
+    userInput.scrollOffset = yOffset;
+}
+
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if (action == GLFW_PRESS) userInput.isClicking = true;
+        if (action == GLFW_RELEASE) {
+            userInput.isClicking = false; userInput.clickTime = 0;
+        }
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    {
+        if (action == GLFW_PRESS) userInput.isRClicking = true;
+        if (action == GLFW_RELEASE) userInput.isRClicking = false;
+    }
+}
 
 std::string LoadTextFile(const std::string &filepath)
 {
@@ -76,7 +119,8 @@ void CreateQuad()
 
 void CreateCube()
 {
-    Graphics::Importer importer(ASSETS_DIR + "/Cube.fbx");
+    Graphics::Importer importer;
+    importer.loadFile(ASSETS_DIR + "/Cube.fbx");
     models.push_back(new Graphics::Model(importer.getMeshDataPointers()));
 }
 
@@ -150,6 +194,8 @@ int main(int argc, char **argv)
       return -1; 
     }
     glfwMakeContextCurrent(window);
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetScrollCallback(window, ScrollCallback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Could not init glad" << std::endl;
@@ -171,28 +217,73 @@ int main(int argc, char **argv)
 
     //glViewport(0, 0, 800, 600);
     glClearColor(r, g, b, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     CreateShader();
     CreateCube();
     glUseProgram(shader);
 
     float zrot = 0.0f;
+    const Math::Vec3 OG_CAM_POS(0.0f, 0.0f, 5.0f);
+    Math::Vec3 camPos(OG_CAM_POS);
+    Math::Vec3 camUp(OG_CAM_POS);
+    float pitch = 0.0f;
+    float yaw = 0.0f;
     Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(0.0f, zrot, 0.0f))));
     Math::Mat4 proj(Math::Perspective(Math::ToRadians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f));
-    Math::Mat4 view(Math::LookAt(Math::Vec3(0.0f, 0.0f, 5.0f), Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 1.0f, 0.0f)));
+    Math::Mat4 view(Math::LookAt(camPos, Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 1.0f, 0.0f)));
     auto result = proj * view * model * Math::Vec4(Math::Vec3(-1.0f, -1.0f, 0.0f), 1.0f);
 
     while(!glfwWindowShouldClose(window))
     {
-        zrot += Math::ToRadians(1.0f);
-        Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(zrot, 0.0f, 0.0f))));
+        // move model
+        if (userInput.isClicking) {
+            
+            userInput.lastMouseX = userInput.currMouseX;
+            userInput.lastMouseY = userInput.currMouseY;
+            glfwGetCursorPos(window, &userInput.currMouseX, &userInput.currMouseY);
+            if (userInput.clickTime == 0) {
+                userInput.lastMouseX = userInput.currMouseX;
+                userInput.lastMouseY = userInput.currMouseY;
+            }
+
+            double xDiff = (userInput.currMouseX - userInput.lastMouseX);
+            double yDiff = (userInput.currMouseY - userInput.lastMouseY);
+            yaw -= (float) xDiff;
+            pitch -= (float) yDiff;
+            // clamp horizontal rotation
+            if (pitch >  89.0) pitch =  89.0;
+            if (pitch < -89.0) pitch = -89.0;
+            //Math::Vec2 mouse(Math::ToRadians((float)pitch), Math::ToRadians((float)yaw));
+
+            Math::Quat hor(Math::Vec3(0.0f, Math::ToRadians((float)yaw), 0.0f));
+            Math::Quat vert(Math::Vec3(Math::ToRadians((float)pitch), 0.0f, 0.0f));
+            //view = view * Math::Mat4::FromQuat(xRot * yRot);
+            //camPos.x += xDiff/100.0;
+            camPos = Math::Mat4::FromQuat(hor*vert) * OG_CAM_POS;// *Math::Vec4(camPos, 1.0f);
+            view = Math::LookAt(camPos, Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 1.0f, 0.0f));
+
+            ++userInput.clickTime;
+            std::cout << camPos.x << ", " << camPos.y << ", " << camPos.z << std::endl;
+        }
+
+        // reset model
+        if (userInput.isRClicking) {
+            camPos = OG_CAM_POS;
+            view = Math::LookAt(camPos, Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 1.0f, 0.0f));
+        }
+
+        //zrot += Math::ToRadians(1.0f);
+        //if (isClicking) zrot -= Math::ToRadians(2.0f);
+        //Math::Mat4 model(Math::Mat4::FromQuat(Math::Quat(Math::Vec3(zrot, 0.0f, 0.0f))));
         glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, model.values);
         glUniformMatrix4fv(glGetUniformLocation(shader, "uProj"), 1, GL_FALSE, proj.values);
         glUniformMatrix4fv(glGetUniformLocation(shader, "uView"), 1, GL_FALSE, view.values);
         glUniform3f(glGetUniformLocation(shader, "uColor"), 1.0f - r, 1.0f - g, 1.0f - b);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(r, g, b, 1.0f);
+        //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         for (auto &m : models) m->draw();
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
