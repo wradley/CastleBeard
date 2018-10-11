@@ -12,7 +12,7 @@ Graphics::Shader::~Shader()
 }
 
 
-bool Graphics::Shader::compileFiles(const char *vertexCode, const char *fragCode)
+bool Graphics::Shader::compileFiles(const char *vertexCode, const char *geomCode, const char *fragCode)
 {
     int success;
     char infoLog[1024];
@@ -28,6 +28,21 @@ bool Graphics::Shader::compileFiles(const char *vertexCode, const char *fragCode
         return false;
     }
 
+    // geometry shader
+    unsigned int gShader;
+    if (geomCode) {
+        gShader = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(gShader, 1, &geomCode, NULL);
+        glCompileShader(gShader);
+        glGetShaderiv(gShader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(gShader, 1024, NULL, infoLog);
+            std::cout << "Error compiling geometry shader: " << infoLog << std::endl;
+            glDeleteShader(vShader);
+            return false;
+        }
+    }
+
     // fragment
     unsigned int fShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fShader, 1, &fragCode, NULL);
@@ -37,23 +52,28 @@ bool Graphics::Shader::compileFiles(const char *vertexCode, const char *fragCode
         glGetShaderInfoLog(fShader, 1024, NULL, infoLog);
         std::cout << "Error compiling fragment shader: " << infoLog << std::endl;
         glDeleteShader(vShader);
+        if (geomCode) glDeleteShader(gShader);
         return false;
     }
 
     _id = glCreateProgram();
     glAttachShader(_id, vShader);
+    if (geomCode) glAttachShader(_id, gShader);
     glAttachShader(_id, fShader);
+    if (gShader) glAttachShader(_id, fShader);
     glLinkProgram(_id);
     glGetProgramiv(_id, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(_id, 1024, NULL, infoLog);
         std::cout << "Error linking shader program: " << infoLog << std::endl;
         glDeleteShader(vShader);
+        if (geomCode) glDeleteShader(gShader);
         glDeleteShader(fShader);
         return false;
     }
 
     glDeleteShader(vShader);
+    if (geomCode) glDeleteShader(gShader);
     glDeleteShader(fShader);
     return true;
 }

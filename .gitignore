@@ -1,5 +1,8 @@
-# cmake define file
-Include/Defines.h
+# cmake generated define file
+/Include/Defines.h
+
+# Build directory
+/Build/
 
 # vs cache
 .vs/

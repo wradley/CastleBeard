@@ -90,11 +90,11 @@ void CreateCube()
     importer.loadFile(ASSETS_DIR + "/SphereFlat.fbx");
     model1 = new Graphics::Model(importer.getMeshDataPointers());
 
-    importer.loadFile(ASSETS_DIR + "/Sphere.fbx");
+    importer.loadFile(ASSETS_DIR + "/SimpleCube.fbx");
     model2 = new Graphics::Model(importer.getMeshDataPointers());
 }
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
     if (!window) {
         std::cout << "Could not create glfw window" << std::endl;
        glfwTerminate();
-      return -1; 
+      return -1;
     }
     glfwMakeContextCurrent(window);
     glfwSetMouseButtonCallback(window, MouseButtonCallback);
@@ -138,12 +138,14 @@ int main(int argc, char **argv)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //CreateShader();
-    std::string vCode = LoadTextFile(ASSETS_DIR + "/vertex.glsl");
-    std::string fCode = LoadTextFile(ASSETS_DIR + "/fragment.glsl");
+    std::string vCode = LoadTextFile(ASSETS_DIR + "/Shaders/Wireframe/vertex.glsl");
+    std::string gCode = LoadTextFile(ASSETS_DIR + "/Shaders/Wireframe/geometry.glsl");
+    std::string fCode = LoadTextFile(ASSETS_DIR + "/Shaders/Wireframe/fragment.glsl");
     const char *vCodeC = vCode.c_str();
+    const char *gCodeC = gCode.c_str();
     const char *fCodeC = fCode.c_str();
     Graphics::Shader shader;
-    shader.compileFiles(vCodeC, fCodeC);
+    shader.compileFiles(vCodeC, gCodeC, fCodeC);
     shader.bind();
     CreateCube();
     //glUseProgram(shader);
@@ -163,7 +165,7 @@ int main(int argc, char **argv)
     {
         // move model
         if (userInput.isClicking) {
-            
+
             userInput.lastMouseX = userInput.currMouseX;
             userInput.lastMouseY = userInput.currMouseY;
             glfwGetCursorPos(window, &userInput.currMouseX, &userInput.currMouseY);
@@ -205,14 +207,15 @@ int main(int argc, char **argv)
         shader.setMat4("uProj", proj);
         shader.setMat4("uView", view);
         shader.setVec3("uColor", Math::Vec3(1.0f - r, 1.0f - g, 1.0f - b));
+        shader.setVec2("uWindowSize", Math::Vec2(width, height));
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(r, g, b, 1.0f);
         //glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-        
+
         shader.setMat4("uModel", Math::Transpose(model.values, Math::Vec3(1.1f, 1.1f, 0.0f)));
         model1->draw();
-        
+
         shader.setMat4("uModel", Math::Transpose(model.values, Math::Vec3(-1.1f, 1.1f, 0.0f)));
         model2->draw();
 
@@ -224,20 +227,20 @@ int main(int argc, char **argv)
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-        
+
 	    if (r >= 1.0f) rdir = -1;
 	    if (r <= 0.1f) rdir = 1;
-        
+
 	    if (g >= 1.0f) gdir = -1;
 	    if (g <= 0.1f) gdir = 1;
-        
+
 	    if (b >= 1.0f) bdir = -1;
 	    if (b <= 0.1f) bdir = 1;
 
         r += 0.001f * (float) rdir * 2.0f;
 	    g += 0.0009f * (float) gdir * 2.0f;
         b += 0.003f * (float) bdir * 2.0f;
-            
+
     }
 
     return 0;

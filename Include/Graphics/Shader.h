@@ -13,7 +13,7 @@ namespace Graphics
         Shader();
         ~Shader();
 
-        bool compileFiles(const char *vertexCode, const char *fragCode);
+        bool compileFiles(const char *vertexCode, const char *geomCode, const char *fragCode);
 
         void bind();
 
