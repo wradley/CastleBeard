@@ -3,6 +3,7 @@
 #include "../../Include/Math/Vector.h"
 #include "../../Include/Math/Quaternion.h"
 #include "../../Include/Math/Matrix.h"
+#include "../../Include/Math/Transform.h"
 
 Math::Mat4::Mat4() : values{
     0.0f, 0.0f, 0.0f, 0.0f,
@@ -34,6 +35,67 @@ Math::Mat4::Mat4(const Mat4 & m) : values{
     m.values[ 8], m.values[ 9], m.values[10], m.values[11],
     m.values[12], m.values[13], m.values[14], m.values[15]
 } {}
+
+
+Math::Mat4::Mat4(const Transform & t)
+{
+    // get position
+    Mat4 p({
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        t.position.x, t.position.y, t.position.z, 1.0f
+    });
+
+    // get rotation
+    Mat4 r(t.rotation);
+
+    // get scale
+    Mat4 s({
+        t.scale.x, 0.0f, 0.0f, 0.0f,
+        0.0f, t.scale.y, 0.0f, 0.0f,
+        0.0f, 0.0f, t.scale.z, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    });
+
+    *this = p * r * s;
+}
+
+
+Math::Mat4::Mat4(const Quat & q)
+{
+    float m_00 = 1 - 2 * (q.y*q.y) - 2 * (q.z*q.z);
+    float m_10 = 2 * q.x * q.y - 2 * q.z * q.w;
+    float m_20 = 2 * q.x * q.z + 2 * q.y * q.w;
+
+    float m_01 = 2 * q.x * q.y + 2 * q.z * q.w;
+    float m_11 = 1 - 2 * (q.x*q.x) - 2 * (q.z*q.z);
+    float m_21 = 2 * q.y * q.z - 2 * q.x * q.w;
+
+    float m_02 = 2 * q.x * q.z - 2 * q.y * q.w;
+    float m_12 = 2 * q.y * q.z + 2 * q.x * q.w;
+    float m_22 = 1 - 2 * (q.x*q.x) - 2 * (q.y*q.y);
+
+    values[ 0] = m_00;
+    values[ 1] = m_01;
+    values[ 2] = m_02;
+    values[ 3] = 0.0f;
+
+    values[ 4] = m_10;
+    values[ 5] = m_11;
+    values[ 6] = m_12;
+    values[ 7] = 0.0f;
+
+    values[ 8] = m_20;
+    values[ 9] = m_21;
+    values[10] = m_22;
+    values[11] = 0.0f;
+
+    values[12] = 0.0f;
+    values[13] = 0.0f;
+    values[14] = 0.0f;
+    values[15] = 1.0f;
+}
 
 
 Math::Mat4 & Math::Mat4::operator=(const Mat4 & m)
@@ -149,6 +211,19 @@ Math::Mat4 Math::Mat4::operator*(const Mat4 & other) const
     r[15] = (m[3] * o[12]) + (m[7] * o[13]) + (m[11] * o[14]) + (m[15] * o[15]);
 
     return rtrn;
+}
+
+
+Math::Mat4 Math::Scale(const Mat4 & m, const Vec3 & v)
+{
+    Mat4 s({
+         v.x, 0.0f, 0.0f, 0.0f,
+        0.0f,  v.y, 0.0f, 0.0f,
+        0.0f, 0.0f,  v.x, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    });
+
+    return m * v;
 }
 
 

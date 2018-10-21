@@ -3,21 +3,21 @@ project(CastleBeard)
 set(CMAKE_CXX_STANDARD 14)
 
 # defines
-set(ASSETS_DIR_FILEPATH "REQUIRED" CACHE PATH "Filepath to assets directory")
-configure_file(${PROJECT_SOURCE_DIR}/Include/Defines.h.in ${PROJECT_SOURCE_DIR}/Include/Defines.h)
+set(ASSETS_DIR_FILEPATH "MISSING" CACHE PATH "Filepath to assets directory")
+configure_file(${PROJECT_SOURCE_DIR}/Include/Defines.h.in ${PROJECT_SOURCE_DIR}/Include/DefinesIn.h)
 
 # glfw
-set(GLFW_INCLUDE_DIR "REQUIRED" CACHE PATH "GLFW include directory")
-set(GLFW_RELEASE_LIB "REQUIRED" CACHE FILEPATH "GLFW static release library")
-set(GLFW_DEBUG_LIB "REQUIRED" CACHE FILEPATH "GLFW static debug library")
+set(GLFW_INCLUDE_DIR "MISSING" CACHE PATH "GLFW include directory")
+set(GLFW_RELEASE_LIB "MISSING" CACHE FILEPATH "GLFW static release library")
+set(GLFW_DEBUG_LIB "MISSING" CACHE FILEPATH "GLFW static debug library")
 
 # glad
 set(GLAD_INCLUDE_DIR Libraries/glad/include)
 
 # fbx sdk
-set(FBX_SDK_INCLUDE_DIR "REQUIRED" CACHE PATH "FBX SDK include directory")
-set(FBX_SDK_RELEASE_LIB "REQUIRED" CACHE FILEPATH "FBX SDK static multithreaded release library")
-set(FBX_SDK_DEBUG_LIB "REQUIRED" CACHE FILEPATH "FBX SDK static multithreaded debug library")
+set(FBX_SDK_INCLUDE_DIR "MISSING" CACHE PATH "FBX SDK include directory")
+set(FBX_SDK_RELEASE_LIB "MISSING" CACHE FILEPATH "FBX SDK static multithreaded release library")
+set(FBX_SDK_DEBUG_LIB "MISSING" CACHE FILEPATH "FBX SDK static multithreaded debug library")
 
 # set windows flags
 if (WIN32)
@@ -28,16 +28,40 @@ endif()
 set(GLAD_SRC Libraries/glad/src/glad.c)
 set(ALL_SRC_FILES
     ${GLAD_SRC}
+
     Source/main.cpp
-    Source/Math/Vector.cpp
+
+    Source/Core/Event.cpp
+    Source/Core/EventManager.cpp
+    Source/Core/EventQueue.cpp
+    Source/Core/PrefFile.cpp
+    Source/Core/StringParser.cpp
+    Source/Core/TextFile.cpp
+    Source/Core/Events/ComponentEvents.cpp
+    Source/Core/Events/EngineEvents.cpp
+    Source/Core/Events/EntityEvents.cpp
+    Source/Core/Events/InputEvents.cpp
+    Source/Core/Events/WindowEvents.cpp
+
+    Source/Graphics/Environment.cpp
+    Source/Graphics/System.cpp
+    Source/Graphics/Environment/Camera.cpp
+    Source/Graphics/Environment/EnvironmentNode.cpp
+    Source/Graphics/Environment/Importer.cpp
+    Source/Graphics/Environment/Material.cpp
+    Source/Graphics/Environment/Mesh.cpp
+    Source/Graphics/Environment/MeshData.cpp
+    Source/Graphics/Environment/Model.cpp
+    Source/Graphics/Environment/Shader.cpp
+    Source/Graphics/Environment/Vertex.cpp
+
+    Source/Math/Math.cpp
     Source/Math/Matrix.cpp
     Source/Math/Quaternion.cpp
-    Source/Graphics/Vertex.cpp
-    Source/Graphics/MeshData.cpp
-    Source/Graphics/Mesh.cpp
-    Source/Graphics/Model.cpp
-    Source/Graphics/Importer.cpp
-    Source/Graphics/Shader.cpp
+    Source/Math/Transform.cpp
+    Source/Math/Vector.cpp
+
+    Source/Window/WindowManager.cpp
 )
 
 # build

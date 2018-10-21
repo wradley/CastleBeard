@@ -5,6 +5,7 @@ namespace Math
     class Quat;
     class Vec3;
     class Vec4;
+    class Transform;
 
     class Mat4
     {
@@ -14,6 +15,8 @@ namespace Math
         Mat4(float i);
         Mat4(const float(&v)[16]);
         Mat4(const Mat4 &m);
+        Mat4(const Transform &t);
+        Mat4(const Quat &q);
         Mat4& operator= (const Mat4 &m);
         ~Mat4();
 
@@ -26,6 +29,7 @@ namespace Math
         float values[16];
     };
 
+    Mat4 Scale(const Mat4 &m, const Vec3 &v);
     Mat4 Transpose(const Mat4 &m, const Vec3 &v);
     Mat4 Perspective(float fov, float aspect, float nearplane, float farplane);
     Mat4 LookAt(const Vec3 &eye, const Vec3 &target, const Vec3 &up);
