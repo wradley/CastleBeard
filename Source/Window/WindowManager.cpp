@@ -9,14 +9,47 @@ static bool lMouseDown = true;
 static bool rMouseDown = true;
 static int lClickTime = 0;
 static int rClickTime = 0;
-static float lHorizontal = 0.0f;
-static float lVertical = 0.0f;
-static float rHorizontal = 0.0f;
-static float rVertical = 0.0f;
+static float mouseHorizontal = 0.0f;
+static float mouseVertical = 0.0f;
+static bool wKey = false;
+static bool aKey = false;
+static bool sKey = false;
+static bool dKey = false;
+static bool escKey = false;
+
+
+static void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    static double lastX = xpos;
+    static double lastY = ypos;
+
+    mouseHorizontal += (float)(xpos - lastX);
+    mouseVertical += -(float)(ypos - lastY);
+
+    lastX = xpos;
+    lastY = ypos;
+}
+
 
 static void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
     scrollOffset += (float)yOffset;
+}
+
+
+static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_W && action == GLFW_PRESS) wKey = true;
+    if (key == GLFW_KEY_A && action == GLFW_PRESS) aKey = true;
+    if (key == GLFW_KEY_S && action == GLFW_PRESS) sKey = true;
+    if (key == GLFW_KEY_D && action == GLFW_PRESS) dKey = true;
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) escKey = true;
+
+    if (key == GLFW_KEY_W && action == GLFW_RELEASE) wKey = false;
+    if (key == GLFW_KEY_A && action == GLFW_RELEASE) aKey = false;
+    if (key == GLFW_KEY_S && action == GLFW_RELEASE) sKey = false;
+    if (key == GLFW_KEY_D && action == GLFW_RELEASE) dKey = false;
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) escKey = false;
 }
 
 
@@ -42,7 +75,8 @@ static void MouseButtonCallback(GLFWwindow* window, int button, int action, int 
 }
 
 
-Window::Manager::Manager() : _window(nullptr), _firstUpdate(true)
+Window::Manager::Manager() : 
+    _window(nullptr), _width(0), _height(0)
 {}
 
 
@@ -59,15 +93,13 @@ void Window::Manager::init(Core::EventManager &em, unsigned int width, unsigned 
 
 void Window::Manager::update(Core::EventManager & em)
 {
-    if (_firstUpdate) {
-        _firstUpdate = false;
-
-        int width, height;
-        glfwGetWindowSize(_window, &width, &height);
-
+    // check for window resize
+    int nWidth, nHeight;
+    glfwGetFramebufferSize(_window, &nWidth, &nHeight);
+    if (nWidth != _width || nHeight != _height) {
         Core::ResizeWindowEvent *rw = new Core::ResizeWindowEvent;
-        rw->newWidth = width;
-        rw->newHeight = height;
+        rw->newWidth = nWidth;
+        rw->newHeight = nHeight;
         em.send(std::shared_ptr<const Core::ResizeWindowEvent>(rw), &_eventQueue);
     }
 
@@ -75,12 +107,23 @@ void Window::Manager::update(Core::EventManager & em)
     handleEvents();
 
     // gather and send input event
-    Core::ControllerInputEvent *ci = new Core::ControllerInputEvent;
-    ci->lHorizontal = lHorizontal;  lHorizontal = 0.0f;
-    ci->lVertical   = lVertical;    lVertical = 0.0f;
-    ci->rHorizontal = rHorizontal;  rHorizontal = 0.0f;
-    ci->rVertical   = rVertical;    rVertical = 0.0f;
-    em.send(std::shared_ptr<const Core::ControllerInputEvent>(ci), &_eventQueue);
+    if (mouseHorizontal != 0.0f || mouseVertical != 0.0f || 
+        wKey || aKey || sKey || dKey || escKey
+    ){
+        Core::ControllerInputEvent *ci = new Core::ControllerInputEvent;
+        ci->lHorizontal = mouseHorizontal;  
+        mouseHorizontal = 0.0f;
+        ci->lVertical = mouseVertical;   
+        mouseVertical = 0.0f;
+        ci->rHorizontal = 0.0f;
+        ci->rVertical = 0.0f;
+        if (wKey) ci->rVertical += 1.0f;
+        if (sKey) ci->rVertical -= 1.0f;
+        if (aKey) ci->rHorizontal -= 1.0f;
+        if (dKey) ci->rHorizontal += 1.0f;
+        ci->pause = escKey;
+        em.send(std::shared_ptr<const Core::ControllerInputEvent>(ci), &_eventQueue);
+    }
 
     // check if we should be shutting down
     if (glfwWindowShouldClose(_window)) {
@@ -121,6 +164,8 @@ void Window::Manager::createWindow(unsigned int width, unsigned int height)
     glfwMakeContextCurrent(_window);
     glfwSetMouseButtonCallback(_window, MouseButtonCallback);
     glfwSetScrollCallback(_window, ScrollCallback);
+    glfwSetCursorPosCallback(_window, CursorPositionCallback);
+    glfwSetKeyCallback(_window, KeyCallback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         DEBUG_LOG("Could not init glad");
@@ -131,11 +176,10 @@ void Window::Manager::createWindow(unsigned int width, unsigned int height)
     // resize for mac retna
     int newWidth, newHeight;
     glfwGetFramebufferSize(_window, &newWidth, &newHeight);
-    glViewport(0, 0, newWidth, newHeight);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+
+    glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 

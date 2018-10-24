@@ -12,5 +12,6 @@ namespace Core
 
         float lHorizontal, lVertical;
         float rHorizontal, rVertical;
+        bool pause, select;
     };
 }

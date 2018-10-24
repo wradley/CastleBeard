@@ -4,7 +4,8 @@ namespace Math
 {
     class Vec3;
     class Vec4;
-    
+    class Quat;
+
     class Vec2
     {
     public:
@@ -47,6 +48,7 @@ namespace Math
         Vec3(const Vec2 &v, float z);
         Vec3(const Vec3 &v);
         Vec3(const Vec4 &v);
+        Vec3(const Quat &v);
         Vec3& operator= (const Vec3 &v);
         ~Vec3();
 

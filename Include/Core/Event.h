@@ -12,14 +12,19 @@ namespace Core
 
         // entities
         eCreateEntity,
-        eUnloadEntities,
+        eUnloadEntity,
+        eTransformEntity,
 
         // graphics
         eAddModelComponent,
         eAddCameraComponent,
+        eModCameraComponent,
 
         // input
         eControllerInput,
+
+        // player controller
+        eAddPlayerControllerComponent,
 
         // window
         eResizeWindow

@@ -20,11 +20,17 @@ namespace Math
         static Quat FromEuler(const Vec3 &v);
 
         Quat operator* (const Quat &q) const;
+        Vec3 operator* (const Vec3 &v) const;
 
-        void Normalize();
+        void normalize();
 
         float x, y, z, w;
     };
 
     Quat Normalize(const Quat &q);
+    void HamiltonProduct(
+        float Aw, float Ax, float Ay, float Az, 
+        float Bw, float Bx, float By, float Bz,
+        float &W, float &X, float &Y, float &Z
+    );
 }

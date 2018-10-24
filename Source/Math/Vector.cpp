@@ -1,5 +1,7 @@
 #include <cmath>
+#include "../../Include/Math/Math.h"
 #include "../../Include/Math/Vector.h"
+#include "../../Include/Math/Quaternion.h"
 
 
 Math::Vec2::Vec2() : x(0.0f), y(0.0f)
@@ -137,6 +139,27 @@ Math::Vec3::Vec3(const Vec3 & v) : x(v.x), y(v.y), z(v.z)
 
 Math::Vec3::Vec3(const Vec4 & v) : x(v.x), y(v.y), z(v.z)
 {}
+
+
+Math::Vec3::Vec3(const Quat & q)
+{
+    // roll
+    float sinr_cosp = +2.0 * (q.w * q.x + q.y * q.z);
+    float cosr_cosp = +1.0 - 2.0 * (q.x * q.x + q.y * q.y);
+    y = atan2(sinr_cosp, cosr_cosp);
+
+    // pitch
+    double sinp = +2.0 * (q.w * q.y - q.z * q.x);
+    if (fabs(sinp) >= 1)
+        x = copysign(Math::PI / 2, sinp); // use 90 degrees if out of range
+    else
+        x = asin(sinp);
+
+    // yaw 
+    double siny_cosp = +2.0 * (q.w * q.z + q.x * q.y);
+    double cosy_cosp = +1.0 - 2.0 * (q.y * q.y + q.z * q.z);
+    z = atan2(siny_cosp, cosy_cosp);
+}
 
 
 Math::Vec3& Math::Vec3::operator= (const Vec3 &v)

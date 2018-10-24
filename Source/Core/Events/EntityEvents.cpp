@@ -7,7 +7,13 @@ Core::EventType Core::CreateEntityEvent::getType() const
 }
 
 
-Core::EventType Core::UnloadEntitiesEvent::getType() const
+Core::EventType Core::UnloadEntityEvent::getType() const
 {
-    return EventType::eUnloadEntities;
+    return EventType::eUnloadEntity;
+}
+
+
+Core::EventType Core::TransformEntityEvent::getType() const
+{
+    return EventType::eTransformEntity;
 }

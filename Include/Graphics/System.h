@@ -4,6 +4,7 @@
 #include "Environment.h"
 #include "../Core/Events/EntityEvents.h"
 #include "../Core/Events/ComponentEvents.h"
+#include "../Core/Events/WindowEvents.h"
 
 namespace Graphics
 {
@@ -21,14 +22,20 @@ namespace Graphics
     private:
 
         void handleEvents();
-        void onCreateEntityEvent(const Core::CreateEntityEvent *e);
-        void onUnloadEntitiesEvent(const Core::UnloadEntitiesEvent *e);
-        void onAddModelEvent(const Core::AddModelComponentEvent *e);
-        void onAddCameraEvent(const Core::AddCameraComponentEvent *e);
+        void onEvent(std::shared_ptr<const Core::Event> e);
+        void onCreateEntity(const Core::CreateEntityEvent *e);
+        void onUnloadEntity(const Core::UnloadEntityEvent *e);
+        void onAddModel(const Core::AddModelComponentEvent *e);
+        void onAddCamera(const Core::AddCameraComponentEvent *e);
+        void onModCamera(const Core::ModCameraComponentEvent *e);
+        void onTransformEntity(const Core::TransformEntityEvent *e);
+        void onResizeWindow(const Core::ResizeWindowEvent *e);
 
         Core::EventQueue _eventQueue;
-        Environment _environment;
+        Environment *_environment;
 
         std::map<unsigned int, unsigned int> _entitiesToNodes;
+        std::map<unsigned int, unsigned int> _componentsToModels;
+        std::map<unsigned int, unsigned int> _componentsToCameras;
     };
 }

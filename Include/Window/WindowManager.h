@@ -27,7 +27,8 @@ namespace Window
         void handleResizeWindowEvent(Core::ResizeWindowEvent *e);
 
         GLFWwindow *_window;
-        bool _firstUpdate;
+        int _width;
+        int _height;
         Core::EventQueue _eventQueue;
     };
 }

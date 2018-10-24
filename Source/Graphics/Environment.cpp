@@ -5,6 +5,7 @@
 #include "../../Include/Math/Math.h"
 #include "../../Include/Defines.h"
 #include "../../Include/Debug.h"
+#include <glad/glad.h>
 
 
 Graphics::Environment::Environment() : _mainCamera(nullptr)
@@ -13,6 +14,10 @@ Graphics::Environment::Environment() : _mainCamera(nullptr)
     _nodes.push_back(nullptr);
     _models.push_back(nullptr);
     _cameras.push_back(nullptr);
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 
@@ -28,6 +33,12 @@ Graphics::Environment::~Environment()
 }
 
 
+void Graphics::Environment::setViewport(unsigned int x, unsigned int y, unsigned int w, unsigned int h)
+{
+    glViewport(x, y, w, h);
+}
+
+
 void Graphics::Environment::draw()
 {
     if (!_mainCamera) {
@@ -39,6 +50,9 @@ void Graphics::Environment::draw()
         DEBUG_LOG("Main camera does not have a specified node");
         return;
     }
+
+    // clear screen
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // calculate projection matrix
     Math::Mat4 proj(Math::Perspective(

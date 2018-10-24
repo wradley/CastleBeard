@@ -2,25 +2,40 @@
 #include <vector>
 #include "../Event.h"
 #include "../../Math/Transform.h"
+#include "ComponentEvents.h"
 
 namespace Core
 {
+    class EntityEvent : public Event
+    {
+    public:
+        virtual EventType getType() const = 0;
+        unsigned int entity;
+    };
+
     // --------------------------------------------------------------- ENTITIES
-    class CreateEntityEvent : public Event
+    class CreateEntityEvent : public EntityEvent
     {
     public:
         EventType getType() const override;
-        unsigned int entity;
         unsigned int parent;
         Math::Transform transform;
+        std::vector<std::shared_ptr<const AddComponentEvent>> components;
     };
 
 
     // ** expected to unload all children of entity **
-    class UnloadEntitiesEvent : public Event
+    class UnloadEntityEvent : public EntityEvent
     {
     public:
         EventType getType() const override;
-        std::vector<unsigned int> entities;
+    };
+
+
+    class TransformEntityEvent : public EntityEvent
+    {
+    public:
+        EventType getType() const override;
+        Math::Transform transform;
     };
 }

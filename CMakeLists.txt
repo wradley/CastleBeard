@@ -61,6 +61,8 @@ set(ALL_SRC_FILES
     Source/Math/Transform.cpp
     Source/Math/Vector.cpp
 
+    Source/PlayerController/System.cpp
+
     Source/Window/WindowManager.cpp
 )
 

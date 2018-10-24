@@ -1,5 +1,5 @@
 #include "../../Include/Core/EventManager.h"
-
+#include "../../Include/Debug.h"
 
 Core::EventManager::EventManager()
 {}
@@ -24,5 +24,14 @@ void Core::EventManager::listenFor(EventType t, EventQueue *q)
 {
     // add listener to event type
     std::lock_guard<std::mutex> lock(_mutex);
+
+    // make sure they don't get added twice
+    for (EventQueue *queue : _listeners[t]) {
+        if (queue == q) {
+            DEBUG_LOG("Listened to same event more than once");
+            return;
+        }
+    }
+
     _listeners[t].push_back(q);
 }

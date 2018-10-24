@@ -19,7 +19,7 @@ Math::Quat::Quat(const Vec3 & euler)
     y = ((cx * sy * cz) + (sx * cy * sz));
     z = ((cx * cy * sz) - (sx * sy * cz));
     w = ((cx * cy * cz) + (sx * sy * sz));
-    Normalize(); // rounding errors
+    normalize(); // rounding errors
 }
 
 
@@ -88,7 +88,21 @@ Math::Quat Math::Quat::operator*(const Quat & q) const
 }
 
 
-void Math::Quat::Normalize()
+Math::Vec3 Math::Quat::operator*(const Vec3 & v) const
+{
+    // hamilton product of quat and vec
+    float hW, hX, hY, hZ;
+    HamiltonProduct(w, x, y, z, 0.0f, v.x, v.y, v.z, hW, hX, hY, hZ);
+
+    // hamilton product of result and quat'
+    float rW, rX, rY, rZ;
+    HamiltonProduct(hW, hX, hY, hZ, w, -x, -y, -z, rW, rX, rY, rZ);
+
+    return Vec3(rX, rY, rZ);
+}
+
+
+void Math::Quat::normalize()
 {
     float d = sqrt((w*w) + (x*x) + (y*y) + (z*z));
     x /= d;
@@ -102,4 +116,16 @@ Math::Quat Math::Normalize(const Quat & q)
 {
     float d = sqrt((q.w*q.w) + (q.x*q.x) + (q.y*q.y) + (q.z*q.z));
     return Quat(q.x/d, q.y/d, q.z/d, q.w/d);
+}
+
+
+void Math::HamiltonProduct(
+    float a1, float b1, float c1, float d1, 
+    float a2, float b2, float c2, float d2,
+    float &W, float &X, float &Y, float &Z
+){
+    W = (a1 * a2) - (b1 * b2) - (c1 * c2) - (d1 * d2);
+    X = (a1 * b2) + (b1 * a2) + (c1 * d2) - (d1 * c2);
+    Y = (a1 * c2) - (b1 * d2) + (c1 * a2) + (d1 * b2);
+    Z = (a1 * d2) + (b1 * c2) - (c1 * b2) + (d1 * a2);
 }
