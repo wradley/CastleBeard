@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <glad/glad.h>
-#include "../../Math/Vector.h"
-#include "../../Math/Matrix.h"
+#include "../Math/Vector.h"
+#include "../Math/Matrix.h"
 
 namespace Graphics
 {

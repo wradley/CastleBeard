@@ -1,5 +1,5 @@
 #pragma once
-#include "../../../Include/Math/Vector.h"
+#include "../Math/Vector.h"
 
 namespace Graphics
 {

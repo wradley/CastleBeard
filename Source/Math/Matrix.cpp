@@ -47,8 +47,8 @@ Math::Mat4::Mat4(const Transform & t)
         t.position.x, t.position.y, t.position.z, 1.0f
     });
 
-    // get rotation
-    Mat4 r(t.rotation);
+    // get orientation
+    Mat4 r(t.orientation);
 
     // get scale
     Mat4 s({

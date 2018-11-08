@@ -21,14 +21,14 @@ void Graphics::System::init(Core::EventManager & em)
     em.listenFor(Core::EventType::eModCameraComponent, &_eventQueue);
     em.listenFor(Core::EventType::eTransformEntity, &_eventQueue);
     em.listenFor(Core::EventType::eResizeWindow, &_eventQueue);
-    _environment = new Environment;
+    _renderer = new Renderer;
 }
 
 
 void Graphics::System::update(Core::EventManager & em)
 {
     handleEvents();
-    _environment->draw();
+    _renderer->draw();
 }
 
 
@@ -72,9 +72,9 @@ void Graphics::System::onEvent(std::shared_ptr<const Core::Event> e)
     case Core::EventType::eResizeWindow:
         onResizeWindow((const Core::ResizeWindowEvent*) e.get());
         break;
-    default:
-        DEBUG_LOG("Default case");
-        break;
+    //default:
+    //    DEBUG_LOG("Default case");
+    //    break;
     }
 }
 
@@ -85,30 +85,6 @@ void Graphics::System::onCreateEntity(const Core::CreateEntityEvent * e)
         DEBUG_LOG("Given null event");
         return;
     }
-    
-    // check if this entity already exists & remove children from mapping
-    if (_entitiesToNodes.find(e->entity) != _entitiesToNodes.end()) {
-        auto children = _environment->removeNodeAndChildren(_entitiesToNodes[e->entity]);
-        for (unsigned int child : children)
-            _entitiesToNodes.erase(child);
-    }
-
-    // create the new entity & mapping
-    _entitiesToNodes[e->entity] = _environment->createNode();
-    _environment->setNodeTransform(_entitiesToNodes[e->entity], e->transform);
-
-    // check if entity has parent
-    if (e->parent) {
-
-        // check if we have mapping to parent
-        if (_entitiesToNodes.find(e->parent) == _entitiesToNodes.end()) {
-            DEBUG_LOG("Event had parent but system mapping did not");
-        }
-
-        else {
-            _environment->addNodeChild(_entitiesToNodes[e->parent], _entitiesToNodes[e->entity]);
-        }
-    }
 
     // add components
     for (auto ac : e->components) {
@@ -117,6 +93,7 @@ void Graphics::System::onCreateEntity(const Core::CreateEntityEvent * e)
 }
 
 
+#include <assert.h>
 void Graphics::System::onUnloadEntity(const Core::UnloadEntityEvent * e)
 {
     if (!e) {
@@ -124,11 +101,8 @@ void Graphics::System::onUnloadEntity(const Core::UnloadEntityEvent * e)
         return;
     }
 
-    unsigned int entity = e->entity;
-    auto children = _environment->removeNodeAndChildren(_entitiesToNodes[entity]);
-    _entitiesToNodes.erase(entity);
-    for (unsigned int child : children)
-        _entitiesToNodes.erase(child);
+    DEBUG_LOG("Impl. unload");
+    assert(false);
 }
 
 
@@ -139,18 +113,22 @@ void Graphics::System::onAddModel(const Core::AddModelComponentEvent * e)
         return;
     }
 
-    // check if there is proper mapping
-    if (_entitiesToNodes.find(e->entity) == _entitiesToNodes.end()) {
-        DEBUG_LOG("Entity [" + std::to_string(e->entity) + "] does not exist in graphics mapping");
+    // make sure model component does not exist
+    if (_componentsToModels.find(e->component) != _componentsToModels.end()) {
+        DEBUG_LOG("Redefined model component");
         return;
     }
+
+    // check if we have created an entity yet
+    if (_entitiesToScenes.find(e->entity) == _entitiesToScenes.end()) {
+        createSceneToEntity(e->entity, e->entityTform, e->lineage);
+    }
     
-    // add model to node
-    unsigned int model = _environment->createModel();
+    // add model to entity
+    Scene *scene = _entitiesToScenes[e->entity];
+    Model *model = scene->createModel();
+    model->loadFile(e->filepath);
     _componentsToModels[e->component] = model;
-    _environment->loadModel(model, e->filepath);
-    _environment->addNodeModel(_entitiesToNodes[e->entity], model);
-    _environment->setModelTransform(model, e->transform);
 }
 
 
@@ -161,22 +139,29 @@ void Graphics::System::onAddCamera(const Core::AddCameraComponentEvent * e)
         return;
     }
 
-    // check if there is proper mapping
-    if (_entitiesToNodes.find(e->entity) == _entitiesToNodes.end()) {
-        DEBUG_LOG("Entity [" + std::to_string(e->entity) + "] does not exist in graphics mapping");
+    // make sure camera component does not exist
+    if (_componentsToCameras.find(e->component) != _componentsToCameras.end()) {
+        DEBUG_LOG("Redefined camera component");
         return;
     }
 
-    // add camera to node
-    unsigned int camera = _environment->createCamera();
+    // check if we have created an entity yet
+    if (_entitiesToScenes.find(e->entity) == _entitiesToScenes.end()) {
+        createSceneToEntity(e->entity, e->entityTform, e->lineage);
+    }
+
+    // add camera to entity
+    Scene *scene = _entitiesToScenes[e->entity];
+    Camera *camera = scene->createCamera();
+    camera->setAspectRatio(e->aspectRatio);
+    camera->setFarPlane(e->farPlane);
+    camera->setFieldOfView(e->fieldOfView);
+    camera->setLocalTransform(e->componentTform);
+    camera->setNearPlane(e->nearPlane);
     _componentsToCameras[e->component] = camera;
-    _environment->addNodeCamera(_entitiesToNodes[e->entity], camera);
-    _environment->setCameraTransform(camera, e->transform);
-    _environment->setCameraNearPlane(camera, e->nearPlane);
-    _environment->setCameraFarPlane(camera, e->farPlane);
-    _environment->setCameraAspectRatio(camera, e->aspectRatio);
-    _environment->setCameraFieldOfView(camera, e->fieldOfView);
-    _environment->setCameraAsMain(camera);
+
+    // TODO: better way to set main camera
+    _renderer->setCamera(camera);
 }
 
 
@@ -193,12 +178,12 @@ void Graphics::System::onModCamera(const Core::ModCameraComponentEvent * e)
         return;
     }
 
-    unsigned int camera =  _componentsToCameras[e->component];
-    if (e->modAspectRatio) _environment->setCameraAspectRatio(camera, e->aspectRatio);
-    if (e->modNearPlane)   _environment->setCameraNearPlane(camera, e->nearPlane);
-    if (e->modFarPlane)    _environment->setCameraFarPlane(camera, e->farPlane);
-    if (e->modFieldOfView) _environment->setCameraFieldOfView(camera, e->fieldOfView);
-    if (e->modTransform)   _environment->setCameraTransform(camera, e->transform);
+    Camera *camera = _componentsToCameras[e->component];
+    if (e->modAspectRatio)    camera->setAspectRatio(e->aspectRatio);
+    if (e->modComponentTForm) camera->setLocalTransform(e->componentTform);
+    if (e->modFarPlane)       camera->setFarPlane(e->farPlane);
+    if (e->modFieldOfView)    camera->setFieldOfView(e->fieldOfView);
+    if (e->modNearPlane)      camera->setNearPlane(e->nearPlane);
 }
 
 
@@ -210,12 +195,12 @@ void Graphics::System::onTransformEntity(const Core::TransformEntityEvent *e)
     }
 
     // check if there is proper mapping
-    if (_entitiesToNodes.find(e->entity) == _entitiesToNodes.end()) {
+    if (_entitiesToScenes.find(e->entity) == _entitiesToScenes.end()) {
         DEBUG_LOG("Entity [" + std::to_string(e->entity) + "] does not exist in graphics mapping");
         return;
     }
 
-    _environment->setNodeTransform(_entitiesToNodes[e->entity], e->transform);
+    _entitiesToScenes[e->entity]->setLocalTransform(e->transform);
 }
 
 
@@ -229,8 +214,44 @@ void Graphics::System::onResizeWindow(const Core::ResizeWindowEvent * e)
     float aspect = (float)e->newWidth / (float)e->newHeight;
 
     for (auto pair : _componentsToCameras) {
-        _environment->setCameraAspectRatio(pair.second, aspect);
+        pair.second->setAspectRatio(aspect);
     }
 
-    _environment->setViewport(0, 0, e->newWidth, e->newHeight);
+    _renderer->setViewport_TEMP_((int)e->newWidth, (int)e->newHeight);
+}
+
+
+void Graphics::System::createSceneToEntity(
+    unsigned int entity, const Math::Transform &transform,
+    const std::vector<std::tuple<unsigned int, Math::Transform>> &lineage
+){
+    Scene *scene;
+
+    // check if entity has lineage
+    if (lineage.size() > 0) {
+
+        // for each parent (oldest to youngest)
+        for (unsigned int i = 0; i < lineage.size(); ++i) {
+            auto& [pEnt, pTform] = lineage[i];
+
+            // check if we don't already have it
+            if (_entitiesToScenes.find(pEnt) == _entitiesToScenes.end()) {
+                if (i == 0) { // if this is a root level scene
+                    _entitiesToScenes[pEnt] = _renderer->getRootScene()->createScene();
+                } else { // if this parent has another parent (not root)
+                    _entitiesToScenes[pEnt] = _entitiesToScenes[std::get<0>(lineage[i - 1])]->createScene();
+                }
+            }
+
+            _entitiesToScenes[pEnt]->setLocalTransform(pTform);
+        }
+
+        scene = _entitiesToScenes[std::get<0>(lineage.back())]->createScene();
+    } else {
+        scene = _renderer->getRootScene()->createScene();
+    }
+    
+    // add entity to mapping
+    scene->setLocalTransform(transform);
+    _entitiesToScenes[entity] = scene;
 }

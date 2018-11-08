@@ -1,4 +1,4 @@
-#include "../../../Include/Graphics/Environment/Vertex.h"
+#include "../../Include/Graphics/Vertex.h"
 
 
 Graphics::Vertex::Vertex() : 

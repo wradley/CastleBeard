@@ -16,7 +16,7 @@ namespace Math
         ~Transform();
 
         Vec3 position;
-        Quat rotation;
+        Quat orientation;
         Vec3 scale;
 
     };

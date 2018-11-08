@@ -7,6 +7,27 @@ namespace Math
     class Vec4;
     class Transform;
 
+    //class Mat3
+    //{
+    //public:
+
+    //    Mat3();
+    //    Mat3(float i);
+    //    Mat3(const float(&v)[9]);
+    //    Mat3(const Mat3 &m);
+    //    Mat3(const Quat &q);
+    //    Mat3& operator= (const Mat3 &m);
+    //    ~Mat3();
+
+    //    static Mat4 FromQuat(const Quat &q);
+
+    //    Mat3 operator* (float s) const;
+    //    Vec3 operator* (const Vec3 &v) const;
+    //    Mat3 operator* (const Mat3 &m) const;
+
+    //    float values[9];
+    //};
+
     class Mat4
     {
     public:

@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include "../../../Include/Graphics/Environment/Mesh.h"
+#include "../../Include/Graphics/Mesh.h"
 
 
 Graphics::Mesh::Mesh(const MeshData &m)

@@ -5,6 +5,7 @@
 #include "../Include/Core/Events/EntityEvents.h"
 #include "../Include/Graphics/System.h"
 #include "../Include/PlayerController/System.h"
+#include "../Include/Physics/System.h"
 #include "../Include/Window/WindowManager.h"
 #include <iostream>
 
@@ -20,11 +21,13 @@ int main(int argc, char **argv)
     Window::Manager windowManager;
     Graphics::System graphicsSystem;
     PlayerController::System playerControllerSystem;
+    //Physics::System physicsSystem;
 
     // init systems
     windowManager.init(eventManager, 800, 600);
     graphicsSystem.init(eventManager);
     playerControllerSystem.init(eventManager);
+    //physicsSystem.init(eventManager);
 
     // listen for engine shutdown
     eventManager.listenFor(Core::EventType::eShutdown, &eventQueue);
@@ -32,7 +35,8 @@ int main(int argc, char **argv)
 
     // send initial events
     Math::Transform initialPlayerTransform;
-    Math::Transform initialCameraTransform;
+    Math::Transform initialCubeTransform;
+    initialPlayerTransform.position.z = 10.0f;
     unsigned int playerEntity    = 1;
     unsigned int cubeEntity      = 2;
     unsigned int cameraComponent = 1;
@@ -42,12 +46,12 @@ int main(int argc, char **argv)
         auto ce = new Core::CreateEntityEvent;
         ce->entity = playerEntity;
         ce->parent = 0;
-        ce->transform.position.z = 10.0f;
-        initialPlayerTransform = ce->transform;
+        ce->transform = initialPlayerTransform;
 
         // camera
         auto ac = new Core::AddCameraComponentEvent;
         ac->entity = playerEntity;
+        ac->entityTform = initialPlayerTransform;
         ac->component = cameraComponent;
         ac->nearPlane = 0.1f;
         ac->farPlane = 1000.0f;
@@ -59,7 +63,7 @@ int main(int argc, char **argv)
         pc->entity = playerEntity;
         pc->component = pcComponent;
         pc->cameraComponent = cameraComponent;
-        pc->entityTransform = initialPlayerTransform;
+        pc->entityTform = initialPlayerTransform;
 
         ce->components.push_back(std::shared_ptr<const Core::AddCameraComponentEvent>(ac));
         ce->components.push_back(std::shared_ptr<const Core::AddPlayerControllerComponentEvent>(pc));
@@ -70,9 +74,11 @@ int main(int argc, char **argv)
         auto ce = new Core::CreateEntityEvent;
         ce->entity = cubeEntity;
         ce->parent = 0;
+        ce->transform = initialCubeTransform;
 
         auto am = new Core::AddModelComponentEvent;
-        am->entity = 2;
+        am->entity = cubeEntity;
+        am->entityTform = initialCubeTransform;
         am->filepath = "Models/Cube.mdl";
         ce->components.push_back(std::shared_ptr<const Core::AddModelComponentEvent>(am));
 
@@ -96,15 +102,16 @@ int main(int argc, char **argv)
 
         // update systems
         windowManager.update(eventManager);
-        graphicsSystem.update(eventManager);
         playerControllerSystem.update(eventManager);
-
+        //physicsSystem.update(eventManager);
+        graphicsSystem.update(eventManager);
         windowManager.swapBuffers();
 
     }
 
-    playerControllerSystem.stop(eventManager);
     graphicsSystem.stop(eventManager);
+    //physicsSystem.update(eventManager);
+    playerControllerSystem.stop(eventManager);
     windowManager.stop(eventManager);
 
     return 0;

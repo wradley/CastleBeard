@@ -103,16 +103,16 @@ void PlayerController::System::onControllerInput(const Core::ControllerInputEven
         Math::Quat yAxis(Math::Vec3(0.0f, Math::ToRadians(yaw), 0.0f));
         Math::Quat xAxis(Math::Vec3(Math::ToRadians(pitch), 0.0f, 0.0f));
 
-        _playerTransform.rotation = _playerTransform.rotation * yAxis;
-        _playerTransform.rotation.normalize();
+        _playerTransform.orientation = _playerTransform.orientation * yAxis;
+        _playerTransform.orientation.normalize();
         //std::cout << _playerTransform.rotation.x << " " << _playerTransform.rotation.y << " " << _playerTransform.rotation.z << " " << _playerTransform.rotation.w << std::endl;
-        _cameraTransform.rotation = _cameraTransform.rotation * xAxis;
-        _cameraTransform.rotation.normalize();
+        _cameraTransform.orientation = _cameraTransform.orientation * xAxis;
+        _cameraTransform.orientation.normalize();
 
         // position
         //std::cout << e->rHorizontal << " " << e->rVertical << std::endl;
         Math::Vec3 dir(e->rHorizontal, 0.0f, -e->rVertical);
-        dir = _playerTransform.rotation * _cameraTransform.rotation * dir;
+        dir = _playerTransform.orientation * _cameraTransform.orientation * dir;
         if (Math::Length(dir) > 0.0f)
             dir = Math::Normalize(dir);
         _playerTransform.position += dir/2.0f;
@@ -127,8 +127,8 @@ void PlayerController::System::onControllerInput(const Core::ControllerInputEven
         mc->modFarPlane    = false;
         mc->modFieldOfView = false;
         mc->modNearPlane   = false;
-        mc->modTransform   = true;
-        mc->transform = _cameraTransform;
+        mc->modComponentTForm = true;
+        mc->componentTform = _cameraTransform;
         mc->component = _cameraID;
         em.send(std::shared_ptr<const Core::ModCameraComponentEvent>(mc), &_eventQueue);
     }
@@ -157,5 +157,5 @@ void PlayerController::System::onAddPlayerControllerComponent(const Core::AddPla
 
     _playerID = e->entity;
     _cameraID = e->cameraComponent;
-    _playerTransform = e->entityTransform;
+    _playerTransform = e->entityTform;
 }

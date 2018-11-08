@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include "../Core/System.h"
-#include "Environment.h"
+#include "Renderer.h"
 #include "../Core/Events/EntityEvents.h"
 #include "../Core/Events/ComponentEvents.h"
 #include "../Core/Events/WindowEvents.h"
@@ -31,11 +31,19 @@ namespace Graphics
         void onTransformEntity(const Core::TransformEntityEvent *e);
         void onResizeWindow(const Core::ResizeWindowEvent *e);
 
-        Core::EventQueue _eventQueue;
-        Environment *_environment;
+        void createSceneToEntity(
+            unsigned int entity, const Math::Transform &transform,
+            const std::vector<std::tuple<unsigned int, Math::Transform>> &lineage
+        );
 
-        std::map<unsigned int, unsigned int> _entitiesToNodes;
-        std::map<unsigned int, unsigned int> _componentsToModels;
-        std::map<unsigned int, unsigned int> _componentsToCameras;
+    private:
+
+        Core::EventQueue _eventQueue;
+        Renderer *_renderer;
+        
+        std::map<unsigned int, Scene*> _entitiesToScenes;
+        std::map<unsigned int, Model*> _componentsToModels;
+        std::map<unsigned int, Camera*> _componentsToCameras;
+
     };
 }

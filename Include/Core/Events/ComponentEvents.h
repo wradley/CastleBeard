@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include <tuple>
 #include "../Event.h"
 #include "../../Math/Transform.h"
 
@@ -19,6 +21,18 @@ namespace Core
         unsigned int entity;
     };
 
+
+    class AddComponentWithTransformEvent : public AddComponentEvent
+    {
+    public:
+        virtual EventType getType() const = 0;
+        Math::Transform entityTform;
+        Math::Transform componentTform;
+
+        // eldest from front to back, does not include new entity
+        std::vector<std::tuple<unsigned int, Math::Transform>> lineage;
+    };
+
     class ModComponentEvent : public ComponentEvent
     {
     public:
@@ -27,17 +41,16 @@ namespace Core
 
 
     // --------------------------------------------------------------- GRAPHICS
-    class AddModelComponentEvent : public AddComponentEvent
+    class AddModelComponentEvent : public AddComponentWithTransformEvent
     {
     public:
 
         EventType getType() const override;
 
         std::string filepath;
-        Math::Transform transform;
     };
 
-    class AddCameraComponentEvent : public AddComponentEvent
+    class AddCameraComponentEvent : public AddComponentWithTransformEvent
     {
     public:
 
@@ -47,7 +60,6 @@ namespace Core
         float farPlane;
         float aspectRatio;
         float fieldOfView;
-        Math::Transform transform;
     };
 
 
@@ -69,18 +81,17 @@ namespace Core
         bool modFieldOfView;
         float fieldOfView;
 
-        bool modTransform;
-        Math::Transform transform;
+        bool modComponentTForm;
+        Math::Transform componentTform;
     };
     
 
     // ------------------------------------------------------- PLAYER CONTOLLER
-    class AddPlayerControllerComponentEvent : public AddComponentEvent
+    class AddPlayerControllerComponentEvent : public AddComponentWithTransformEvent
     {
     public:
         EventType getType() const override;
 
         unsigned int cameraComponent;
-        Math::Transform entityTransform;
     };
 }

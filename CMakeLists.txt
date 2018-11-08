@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11.0)
 project(CastleBeard)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # defines
 set(ASSETS_DIR_FILEPATH "MISSING" CACHE PATH "Filepath to assets directory")
@@ -43,23 +43,31 @@ set(ALL_SRC_FILES
     Source/Core/Events/InputEvents.cpp
     Source/Core/Events/WindowEvents.cpp
 
-    Source/Graphics/Environment.cpp
+    #Source/Graphics/Environment.cpp
     Source/Graphics/System.cpp
-    Source/Graphics/Environment/Camera.cpp
-    Source/Graphics/Environment/EnvironmentNode.cpp
-    Source/Graphics/Environment/Importer.cpp
-    Source/Graphics/Environment/Material.cpp
-    Source/Graphics/Environment/Mesh.cpp
-    Source/Graphics/Environment/MeshData.cpp
-    Source/Graphics/Environment/Model.cpp
-    Source/Graphics/Environment/Shader.cpp
-    Source/Graphics/Environment/Vertex.cpp
+    Source/Graphics/Camera.cpp
+    #Source/Graphics/EnvironmentNode.cpp
+    Source/Graphics/Importer.cpp
+    Source/Graphics/Material.cpp
+    Source/Graphics/Mesh.cpp
+    Source/Graphics/MeshData.cpp
+    Source/Graphics/Model.cpp
+    Source/Graphics/Renderer.cpp
+    Source/Graphics/RendererNode.cpp
+    Source/Graphics/Scene.cpp
+    Source/Graphics/Shader.cpp
+    Source/Graphics/Vertex.cpp
 
+    Source/Math/AngleAxis.cpp
     Source/Math/Math.cpp
     Source/Math/Matrix.cpp
     Source/Math/Quaternion.cpp
     Source/Math/Transform.cpp
     Source/Math/Vector.cpp
+
+    #Source/Physics/PhysicsEnvironment.cpp
+    #Source/Physics/System.cpp
+    #Source/Physics/Environment/Rigidbody.cpp
 
     Source/PlayerController/System.cpp
 
