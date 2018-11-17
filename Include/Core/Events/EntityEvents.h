@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "../Event.h"
-#include "../../Math/Transform.h"
+#include "CBMath.h"
 #include "ComponentEvents.h"
 
 namespace Core

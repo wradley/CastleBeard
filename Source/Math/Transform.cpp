@@ -1,4 +1,4 @@
-#include "../../Include/Math/Transform.h"
+#include "Transform.h"
 
 
 Math::Transform::Transform() : position(0.0f), orientation(Math::Vec3(0.0f)), scale(1.0f)

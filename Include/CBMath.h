@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Math/AngleAxis.h"
-#include "Math/Math.h"
-#include "Math/Matrix.h"
-#include "Math/Quaternion.h"
-#include "Math/Transform.h"
-#include "Math/Vector.h"
+#include "../Source/Math/AngleAxis.h"
+#include "../Source/Math/Math.h"
+#include "../Source/Math/Matrix.h"
+#include "../Source/Math/Quaternion.h"
+#include "../Source/Math/Transform.h"
+#include "../Source/Math/Vector.h"

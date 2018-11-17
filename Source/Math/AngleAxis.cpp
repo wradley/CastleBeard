@@ -1,4 +1,4 @@
-#include "../../Include/Math/AngleAxis.h"
+#include "AngleAxis.h"
 
 
 Math::AngleAxis::AngleAxis(float angle, const Vec3 &v)

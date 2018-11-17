@@ -43,21 +43,20 @@ set(ALL_SRC_FILES
     Source/Core/Events/InputEvents.cpp
     Source/Core/Events/WindowEvents.cpp
 
-    #Source/Graphics/Environment.cpp
-    Source/Graphics/System.cpp
-    Source/Graphics/Camera.cpp
-    #Source/Graphics/EnvironmentNode.cpp
-    Source/Graphics/Importer.cpp
-    Source/Graphics/Material.cpp
-    Source/Graphics/Mesh.cpp
-    Source/Graphics/MeshData.cpp
-    Source/Graphics/Model.cpp
-    Source/Graphics/Renderer.cpp
-    Source/Graphics/RendererNode.cpp
-    Source/Graphics/Scene.cpp
-    Source/Graphics/Shader.cpp
-    Source/Graphics/Vertex.cpp
+    # renderer
+    Source/Renderer/Camera.cpp
+    Source/Renderer/Importer.cpp
+    Source/Renderer/Material.cpp
+    Source/Renderer/Mesh.cpp
+    Source/Renderer/MeshData.cpp
+    Source/Renderer/Model.cpp
+    Source/Renderer/Renderer.cpp
+    Source/Renderer/RendererNode.cpp
+    Source/Renderer/Scene.cpp
+    Source/Renderer/Shader.cpp
+    Source/Renderer/Vertex.cpp
 
+    # math
     Source/Math/AngleAxis.cpp
     Source/Math/Math.cpp
     Source/Math/Matrix.cpp
@@ -65,11 +64,14 @@ set(ALL_SRC_FILES
     Source/Math/Transform.cpp
     Source/Math/Vector.cpp
 
-    Source/Physics/PhysicsEnvironment.cpp
-    Source/Physics/System.cpp
-    Source/Physics/Rigidbody.cpp
+    # physics environment
+    Source/PhysicsEnvironment/PhysicsEnvironment.cpp
+    Source/PhysicsEnvironment/Rigidbody.cpp
 
-    Source/PlayerController/System.cpp
+    #engine
+    Source/Engine/GraphicsSystem.cpp
+    Source/Engine/PhysicsSystem.cpp
+    Source/Engine/PlayerControllerSystem.cpp
 
     Source/Window/WindowManager.cpp
 )

@@ -1,9 +1,9 @@
 #include <cmath>
-#include "../../Include/Math/Matrix.h"
-#include "../../Include/Math/Vector.h"
-#include "../../Include/Math/Quaternion.h"
-#include "../../Include/Math/Matrix.h"
-#include "../../Include/Math/Transform.h"
+#include "Matrix.h"
+#include "Vector.h"
+#include "Quaternion.h"
+#include "Matrix.h"
+#include "Transform.h"
 
 Math::Mat4::Mat4() : values{
     0.0f, 0.0f, 0.0f, 0.0f,

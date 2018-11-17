@@ -1,4 +1,4 @@
-#include "../../Include/Math/Math.h"
+#include "Math.h"
 
 float Math::ToDegrees(float radians)
 {

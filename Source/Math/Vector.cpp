@@ -1,7 +1,7 @@
 #include <cmath>
-#include "../../Include/Math/Math.h"
-#include "../../Include/Math/Vector.h"
-#include "../../Include/Math/Quaternion.h"
+#include "Math.h"
+#include "Vector.h"
+#include "Quaternion.h"
 
 
 Math::Vec2::Vec2() : x(0.0f), y(0.0f)

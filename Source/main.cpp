@@ -1,11 +1,9 @@
-#include "../Include/Math/Vector.h"
+#include "CBMath.h"
 #include "../Include/Core/EventManager.h"
 #include "../Include/Core/Events/ComponentEvents.h"
 #include "../Include/Core/Events/InputEvents.h"
 #include "../Include/Core/Events/EntityEvents.h"
-#include "../Include/Graphics/System.h"
-#include "../Include/PlayerController/System.h"
-#include "Physics/System.h"
+#include "Engine.h"
 #include "../Include/Window/WindowManager.h"
 #include <iostream>
 
@@ -19,9 +17,9 @@ int main(int argc, char **argv)
 
     // create systems and managers
     Window::Manager windowManager;
-    Graphics::System graphicsSystem;
-    PlayerController::System playerControllerSystem;
-    Physics::System physicsSystem;
+    Engine::GraphicsSystem graphicsSystem;
+    Engine::PlayerControllerSystem playerControllerSystem;
+    Engine::PhysicsSystem physicsSystem;
 
     // init systems
     windowManager.init(eventManager, 800, 600);
