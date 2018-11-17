@@ -38,4 +38,12 @@ namespace Core
         EventType getType() const override;
         Math::Transform transform;
     };
+
+
+    class TransformEntitiesEvent : public Event
+    {
+    public:
+        EventType getType() const override;
+        std::vector<std::shared_ptr<const TransformEntityEvent>> transformEvents;
+    };
 }

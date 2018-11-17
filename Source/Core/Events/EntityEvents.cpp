@@ -17,3 +17,9 @@ Core::EventType Core::TransformEntityEvent::getType() const
 {
     return EventType::eTransformEntity;
 }
+
+
+Core::EventType Core::TransformEntitiesEvent::getType() const
+{
+    return EventType::eTransformEntities;
+}

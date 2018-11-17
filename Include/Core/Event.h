@@ -14,11 +14,15 @@ namespace Core
         eCreateEntity,
         eUnloadEntity,
         eTransformEntity,
+        eTransformEntities,
 
         // graphics
         eAddModelComponent,
         eAddCameraComponent,
         eModCameraComponent,
+
+        // physics
+        eAddRigidbodyComponent,
 
         // input
         eControllerInput,

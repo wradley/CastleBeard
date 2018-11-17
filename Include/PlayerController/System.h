@@ -27,6 +27,7 @@ namespace PlayerController
         void onUnloadEntity(const Core::UnloadEntityEvent *e);
         void onControllerInput(const Core::ControllerInputEvent *e, Core::EventManager &em);
         void onTransformEntity(const Core::TransformEntityEvent *e);
+        void onTransformEntities(const Core::TransformEntitiesEvent *e);
         void onAddPlayerControllerComponent(const Core::AddPlayerControllerComponentEvent *e);
 
         unsigned int _playerID;

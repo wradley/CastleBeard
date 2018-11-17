@@ -65,9 +65,9 @@ set(ALL_SRC_FILES
     Source/Math/Transform.cpp
     Source/Math/Vector.cpp
 
-    #Source/Physics/PhysicsEnvironment.cpp
-    #Source/Physics/System.cpp
-    #Source/Physics/Environment/Rigidbody.cpp
+    Source/Physics/PhysicsEnvironment.cpp
+    Source/Physics/System.cpp
+    Source/Physics/Rigidbody.cpp
 
     Source/PlayerController/System.cpp
 
@@ -75,7 +75,12 @@ set(ALL_SRC_FILES
 )
 
 # build
-include_directories(${GLFW_INCLUDE_DIR} ${GLAD_INCLUDE_DIR} ${FBX_SDK_INCLUDE_DIR})
+include_directories(
+    ${GLFW_INCLUDE_DIR} 
+    ${GLAD_INCLUDE_DIR} 
+    ${FBX_SDK_INCLUDE_DIR}
+    Include
+)
 add_executable(CastleBeard ${ALL_SRC_FILES})
 
 

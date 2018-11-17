@@ -5,7 +5,7 @@
 #include "../Include/Core/Events/EntityEvents.h"
 #include "../Include/Graphics/System.h"
 #include "../Include/PlayerController/System.h"
-#include "../Include/Physics/System.h"
+#include "Physics/System.h"
 #include "../Include/Window/WindowManager.h"
 #include <iostream>
 
@@ -21,13 +21,13 @@ int main(int argc, char **argv)
     Window::Manager windowManager;
     Graphics::System graphicsSystem;
     PlayerController::System playerControllerSystem;
-    //Physics::System physicsSystem;
+    Physics::System physicsSystem;
 
     // init systems
     windowManager.init(eventManager, 800, 600);
     graphicsSystem.init(eventManager);
     playerControllerSystem.init(eventManager);
-    //physicsSystem.init(eventManager);
+    physicsSystem.init(eventManager);
 
     // listen for engine shutdown
     eventManager.listenFor(Core::EventType::eShutdown, &eventQueue);
@@ -82,6 +82,12 @@ int main(int argc, char **argv)
         am->filepath = "Models/Cube.mdl";
         ce->components.push_back(std::shared_ptr<const Core::AddModelComponentEvent>(am));
 
+        auto ar = new Core::AddRigidbodyComponentEvent;
+        ar->entity = cubeEntity;
+        ar->invertedMass = 1;
+        ar->transform = initialCubeTransform;
+        ce->components.push_back(std::shared_ptr<const Core::AddRigidbodyComponentEvent>(ar));
+
         eventManager.send(std::shared_ptr<const Core::CreateEntityEvent>(ce), &eventQueue);
     }
 
@@ -103,14 +109,14 @@ int main(int argc, char **argv)
         // update systems
         windowManager.update(eventManager);
         playerControllerSystem.update(eventManager);
-        //physicsSystem.update(eventManager);
+        physicsSystem.update(eventManager);
         graphicsSystem.update(eventManager);
         windowManager.swapBuffers();
 
     }
 
     graphicsSystem.stop(eventManager);
-    //physicsSystem.update(eventManager);
+    physicsSystem.stop(eventManager);
     playerControllerSystem.stop(eventManager);
     windowManager.stop(eventManager);
 

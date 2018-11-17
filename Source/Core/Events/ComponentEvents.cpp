@@ -14,13 +14,21 @@ Core::EventType Core::AddCameraComponentEvent::getType() const
 }
 
 
+Core::EventType Core::ModCameraComponentEvent::getType() const
+{
+    return EventType::eModCameraComponent;
+}
+
+
+// ---------------------------------------------------------- PLAYER CONTROLLER
 Core::EventType Core::AddPlayerControllerComponentEvent::getType() const
 {
     return EventType::eAddPlayerControllerComponent;
 }
 
 
-Core::EventType Core::ModCameraComponentEvent::getType() const
+// -------------------------------------------------------------------- PHYSICS
+Core::EventType Core::AddRigidbodyComponentEvent::getType() const
 {
-    return EventType::eModCameraComponent;
+    return EventType::eAddRigidbodyComponent;
 }

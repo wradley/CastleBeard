@@ -20,6 +20,7 @@ void Graphics::System::init(Core::EventManager & em)
     em.listenFor(Core::EventType::eAddCameraComponent, &_eventQueue);
     em.listenFor(Core::EventType::eModCameraComponent, &_eventQueue);
     em.listenFor(Core::EventType::eTransformEntity, &_eventQueue);
+    em.listenFor(Core::EventType::eTransformEntities, &_eventQueue);
     em.listenFor(Core::EventType::eResizeWindow, &_eventQueue);
     _renderer = new Renderer;
 }
@@ -69,12 +70,15 @@ void Graphics::System::onEvent(std::shared_ptr<const Core::Event> e)
     case Core::EventType::eTransformEntity:
         onTransformEntity((const Core::TransformEntityEvent*) e.get());
         break;
+    case Core::EventType::eTransformEntities:
+        onTransformEntities((const Core::TransformEntitiesEvent*) e.get());
+        break;
     case Core::EventType::eResizeWindow:
         onResizeWindow((const Core::ResizeWindowEvent*) e.get());
         break;
-    //default:
+    default:
     //    DEBUG_LOG("Default case");
-    //    break;
+        break;
     }
 }
 
@@ -94,6 +98,7 @@ void Graphics::System::onCreateEntity(const Core::CreateEntityEvent * e)
 
 
 #include <assert.h>
+#include "..\Physics\System.h"
 void Graphics::System::onUnloadEntity(const Core::UnloadEntityEvent * e)
 {
     if (!e) {
@@ -204,6 +209,19 @@ void Graphics::System::onTransformEntity(const Core::TransformEntityEvent *e)
 }
 
 
+void Graphics::System::onTransformEntities(const Core::TransformEntitiesEvent *e)
+{
+    if (!e) {
+        DEBUG_LOG("Given null event");
+        return;
+    }
+
+    for (auto te : e->transformEvents) {
+        onTransformEntity(te.get());
+    }
+}
+
+
 void Graphics::System::onResizeWindow(const Core::ResizeWindowEvent * e)
 {
     if (!e) {
@@ -255,3 +273,5 @@ void Graphics::System::createSceneToEntity(
     scene->setLocalTransform(transform);
     _entitiesToScenes[entity] = scene;
 }
+
+

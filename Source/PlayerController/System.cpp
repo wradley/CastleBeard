@@ -19,6 +19,7 @@ void PlayerController::System::init(Core::EventManager & em)
     em.listenFor(Core::EventType::eUnloadEntity, &_eventQueue);
     em.listenFor(Core::EventType::eControllerInput, &_eventQueue);
     em.listenFor(Core::EventType::eTransformEntity, &_eventQueue);
+    em.listenFor(Core::EventType::eTransformEntities, &_eventQueue);
     em.listenFor(Core::EventType::eAddPlayerControllerComponent, &_eventQueue);
 }
 
@@ -49,6 +50,9 @@ void PlayerController::System::handleEvents(Core::EventManager & em)
             break;
         case Core::EventType::eTransformEntity:
             onTransformEntity((Core::TransformEntityEvent*)e.get());
+            break;
+        case Core::EventType::eTransformEntities:
+            onTransformEntities((Core::TransformEntitiesEvent*)e.get());
             break;
         case Core::EventType::eAddPlayerControllerComponent:
             onAddPlayerControllerComponent((Core::AddPlayerControllerComponentEvent*)e.get());
@@ -144,6 +148,19 @@ void PlayerController::System::onTransformEntity(const Core::TransformEntityEven
 
     if (_playerID && _playerID == e->entity) { // if there is a player
         _playerTransform = e->transform;
+    }
+}
+
+
+void PlayerController::System::onTransformEntities(const Core::TransformEntitiesEvent *e)
+{
+    if (!e) {
+        DEBUG_LOG("Null event");
+        return;
+    }
+
+    for (auto te : e->transformEvents) {
+        onTransformEntity(te.get());
     }
 }
 

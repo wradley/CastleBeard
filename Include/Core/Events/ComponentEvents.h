@@ -94,4 +94,19 @@ namespace Core
 
         unsigned int cameraComponent;
     };
+
+
+    // ---------------------------------------------------------------- PHYSICS
+    class AddRigidbodyComponentEvent : public AddComponentEvent
+    {
+    public:
+
+        EventType getType() const override;
+
+        float invertedMass;
+        Math::Vec3 acceleration;
+        Math::Vec3 velocity;
+
+        Math::Transform transform;
+    };
 }

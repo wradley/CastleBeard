@@ -1,50 +1,48 @@
-#include "../../Include/Physics/PhysicsEnvironment.h"
-#include "../../Include/Debug.h"
-
-Physics::PhysicsEnvironment::PhysicsEnvironment()
-{}
+#include "PhysicsEnvironment.h"
+#include "Debug.h"
 
 
-Physics::PhysicsEnvironment::~PhysicsEnvironment()
-{}
-
-
-void Physics::PhysicsEnvironment::update(float dt)
+namespace Physics
 {
-    for (auto &node : _nodes) {
-        node.lVel += node.lAccel * dt;
-        node.lPos += node.lVel * dt;
-    }
-}
+    PhysicsEnvironment::PhysicsEnvironment()
+    {}
 
 
-unsigned int Physics::PhysicsEnvironment::createNode()
-{
-    unsigned int newNode;
-
-    if (_recycledNodeIDs.size()) {
-        newNode = _recycledNodeIDs.front();
-        _recycledNodeIDs.pop_front();
-    } else {
-        newNode = _nodes.size();
+    PhysicsEnvironment::~PhysicsEnvironment()
+    {
+        for (auto rb : _rigidBodies) delete rb;
     }
 
-    _nodes.resize(_nodes.size());
-    _nodes[newNode].inverseMass = 1.0f;
-    _nodes[newNode].valid = true;
-}
 
-
-void Physics::PhysicsEnvironment::removeNode(unsigned int node)
-{
-    if (node >= _nodes.size()) {
-        DEBUG_LOG("Node out of bounds: " + std::to_string(node));
-        return;
+    void PhysicsEnvironment::update(float dt)
+    {
+        for (auto rb : _rigidBodies) {
+            rb->integrate(dt);
+            rb->setAcceleration(Math::Vec3(0.0f, -9.8f, 0.0f));
+        }
     }
 
-    _nodes[node].valid = false;
+
+    Rigidbody* PhysicsEnvironment::createRigidbody()
+    {
+        Rigidbody *rb = new Rigidbody;
+        _rigidBodies.push_back(rb);
+        return rb;
+    }
+
+
+    void PhysicsEnvironment::deleteRigidbody(Rigidbody *r)
+    {
+        // copy back to this location and pop back
+        unsigned int size = (unsigned int) _rigidBodies.size();
+        for (unsigned int i = 0; i < size; ++i) {
+            if (_rigidBodies[i] == r) {
+                _rigidBodies[i] = _rigidBodies.back();
+                _rigidBodies.pop_back();
+                break;
+            }
+        }
+
+        delete r;
+    }
 }
-
-
-void Physics::PhysicsEnvironment::applyForce(unsigned int node, const Math::Vec3 &force)
-{}

@@ -29,6 +29,7 @@ namespace Graphics
         void onAddCamera(const Core::AddCameraComponentEvent *e);
         void onModCamera(const Core::ModCameraComponentEvent *e);
         void onTransformEntity(const Core::TransformEntityEvent *e);
+        void onTransformEntities(const Core::TransformEntitiesEvent *e);
         void onResizeWindow(const Core::ResizeWindowEvent *e);
 
         void createSceneToEntity(
