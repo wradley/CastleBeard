@@ -1,7 +1,6 @@
-#include <atomic>
-#include "../../Include/Window/WindowManager.h"
-#include "../../Include/Core/Events/EngineEvents.h"
-#include "../../Include/Debug.h"
+//#include <atomic>
+#include "WindowManager.h"
+#include "Debug.h"
 
 
 static float scrollOffset = 0.0f;
@@ -75,127 +74,132 @@ static void MouseButtonCallback(GLFWwindow* window, int button, int action, int 
 }
 
 
-Window::Manager::Manager() : 
-    _window(nullptr), _width(0), _height(0)
-{}
-
-
-Window::Manager::~Manager()
-{}
-
-
-void Window::Manager::init(Core::EventManager &em, unsigned int width, unsigned int height)
+namespace Window
 {
-    em.listenFor(Core::EventType::eResizeWindow, &_eventQueue);
-    createWindow(width, height);
-}
+    Manager::Manager() :
+        _window(nullptr), _width(0), _height(0)
+    {}
 
 
-void Window::Manager::update(Core::EventManager & em)
-{
-    // check for window resize
-    int nWidth, nHeight;
-    glfwGetFramebufferSize(_window, &nWidth, &nHeight);
-    if (nWidth != _width || nHeight != _height) {
-        Core::ResizeWindowEvent *rw = new Core::ResizeWindowEvent;
-        rw->newWidth = nWidth;
-        rw->newHeight = nHeight;
-        em.send(std::shared_ptr<const Core::ResizeWindowEvent>(rw), &_eventQueue);
+    Manager::~Manager()
+    {}
+
+
+    void Manager::init(Engine::EventManager &em, unsigned int width, unsigned int height)
+    {
+        em.listenFor(Engine::EventType::eResizeWindow, &_eventQueue);
+        createWindow(width, height);
     }
 
-    glfwPollEvents();
-    handleEvents();
 
-    // gather and send input event
-    if (mouseHorizontal != 0.0f || mouseVertical != 0.0f || 
-        wKey || aKey || sKey || dKey || escKey
-    ){
-        Core::ControllerInputEvent *ci = new Core::ControllerInputEvent;
-        ci->lHorizontal = mouseHorizontal;  
-        mouseHorizontal = 0.0f;
-        ci->lVertical = mouseVertical;   
-        mouseVertical = 0.0f;
-        ci->rHorizontal = 0.0f;
-        ci->rVertical = 0.0f;
-        if (wKey) ci->rVertical += 1.0f;
-        if (sKey) ci->rVertical -= 1.0f;
-        if (aKey) ci->rHorizontal -= 1.0f;
-        if (dKey) ci->rHorizontal += 1.0f;
-        ci->pause = escKey;
-        em.send(std::shared_ptr<const Core::ControllerInputEvent>(ci), &_eventQueue);
-    }
+    void Manager::update(Engine::EventManager & em)
+    {
+        // check for window resize
+        int nWidth, nHeight;
+        glfwGetFramebufferSize(_window, &nWidth, &nHeight);
+        if (nWidth != _width || nHeight != _height) {
+            Engine::ResizeWindowEvent *rw = new Engine::ResizeWindowEvent;
+            rw->newWidth = nWidth;
+            rw->newHeight = nHeight;
+            em.send(std::shared_ptr<const Engine::ResizeWindowEvent>(rw), &_eventQueue);
+        }
 
-    // check if we should be shutting down
-    if (glfwWindowShouldClose(_window)) {
-        auto *sd = new Core::ShutdownEvent;
-        em.send(std::shared_ptr<const Core::ShutdownEvent>(sd), &_eventQueue);
-    }
-}
+        glfwPollEvents();
+        handleEvents();
 
+        // gather and send input event
+        if (mouseHorizontal != 0.0f || mouseVertical != 0.0f ||
+            wKey || aKey || sKey || dKey || escKey
+            ) {
+            Engine::ControllerInputEvent *ci = new Engine::ControllerInputEvent;
+            ci->lHorizontal = mouseHorizontal;
+            mouseHorizontal = 0.0f;
+            ci->lVertical = mouseVertical;
+            mouseVertical = 0.0f;
+            ci->rHorizontal = 0.0f;
+            ci->rVertical = 0.0f;
+            if (wKey) ci->rVertical += 1.0f;
+            if (sKey) ci->rVertical -= 1.0f;
+            if (aKey) ci->rHorizontal -= 1.0f;
+            if (dKey) ci->rHorizontal += 1.0f;
+            ci->pause = escKey;
+            em.send(std::shared_ptr<const Engine::ControllerInputEvent>(ci), &_eventQueue);
+        }
 
-void Window::Manager::stop(Core::EventManager & em)
-{
-    handleEvents();
-}
-
-
-void Window::Manager::swapBuffers()
-{
-    glfwSwapBuffers(_window);
-}
-
-
-void Window::Manager::createWindow(unsigned int width, unsigned int height)
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-    _window = glfwCreateWindow(width, height, "CMakeTest", NULL, NULL);
-    if (!_window) {
-        DEBUG_LOG("Could not create glfw window");
-        glfwTerminate();
-        return;
-    }
-    glfwMakeContextCurrent(_window);
-    glfwSetMouseButtonCallback(_window, MouseButtonCallback);
-    glfwSetScrollCallback(_window, ScrollCallback);
-    glfwSetCursorPosCallback(_window, CursorPositionCallback);
-    glfwSetKeyCallback(_window, KeyCallback);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        DEBUG_LOG("Could not init glad");
-        glfwTerminate();
-        return;
-    }
-
-    // resize for mac retna
-    int newWidth, newHeight;
-    glfwGetFramebufferSize(_window, &newWidth, &newHeight);
-
-    
-
-    glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-}
-
-
-void Window::Manager::handleEvents()
-{
-    unsigned int size = _eventQueue.size();
-    for (unsigned int i = 0; i < size; ++i) {
-        auto e = _eventQueue.popFront();
-        switch (e->getType()) {
-        case Core::EventType::eResizeWindow: handleResizeWindowEvent((Core::ResizeWindowEvent*)e.get()); break;
-        default: DEBUG_LOG("Default case"); break;
+        // check if we should be shutting down
+        if (glfwWindowShouldClose(_window)) {
+            auto *sd = new Engine::ShutdownEvent;
+            em.send(std::shared_ptr<const Engine::ShutdownEvent>(sd), &_eventQueue);
         }
     }
+
+
+    void Manager::stop(Engine::EventManager & em)
+    {
+        handleEvents();
+    }
+
+
+    void Manager::swapBuffers()
+    {
+        glfwSwapBuffers(_window);
+    }
+
+
+    void Manager::createWindow(unsigned int width, unsigned int height)
+    {
+        glfwInit();
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+        _window = glfwCreateWindow(width, height, "CMakeTest", NULL, NULL);
+        if (!_window) {
+            DEBUG_LOG("Could not create glfw window");
+            glfwTerminate();
+            return;
+        }
+        glfwMakeContextCurrent(_window);
+        glfwSetMouseButtonCallback(_window, MouseButtonCallback);
+        glfwSetScrollCallback(_window, ScrollCallback);
+        glfwSetCursorPosCallback(_window, CursorPositionCallback);
+        glfwSetKeyCallback(_window, KeyCallback);
+
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+            DEBUG_LOG("Could not init glad");
+            glfwTerminate();
+            return;
+        }
+
+        // resize for mac retna
+        int newWidth, newHeight;
+        glfwGetFramebufferSize(_window, &newWidth, &newHeight);
+
+
+
+        glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
+
+    void Manager::handleEvents()
+    {
+        unsigned int size = _eventQueue.size();
+        for (unsigned int i = 0; i < size; ++i) {
+            auto e = _eventQueue.popFront();
+            switch (e->getType()) {
+            case Engine::EventType::eResizeWindow: handleResizeWindowEvent((Engine::ResizeWindowEvent*)e.get()); break;
+            default: DEBUG_LOG("Default case"); break;
+            }
+        }
+    }
+
+
+    void Manager::handleResizeWindowEvent(Engine::ResizeWindowEvent *e)
+    {
+        DEBUG_LOG("Not Impl'd");
+    }
+
 }
-
-
-void Window::Manager::handleResizeWindowEvent(Core::ResizeWindowEvent *e)
-{}
-

@@ -31,17 +31,19 @@ set(ALL_SRC_FILES
 
     Source/main.cpp
 
-    Source/Core/Event.cpp
-    Source/Core/EventManager.cpp
-    Source/Core/EventQueue.cpp
-    Source/Core/PrefFile.cpp
-    Source/Core/StringParser.cpp
-    Source/Core/TextFile.cpp
-    Source/Core/Events/ComponentEvents.cpp
-    Source/Core/Events/EngineEvents.cpp
-    Source/Core/Events/EntityEvents.cpp
-    Source/Core/Events/InputEvents.cpp
-    Source/Core/Events/WindowEvents.cpp
+    #engine
+    Source/Engine/Events/EventManager.cpp
+    Source/Engine/Events/EventQueue.cpp
+    Source/Engine/Events/InputEvents.cpp
+    Source/Engine/Events/WindowEvents.cpp
+    Source/Engine/Graphics/GraphicsSystem.cpp
+    Source/Engine/Physics/PhysicsSystem.cpp
+    Source/Engine/PlayerController/PlayerControllerSystem.cpp
+
+    # utilities
+    Source/Util/PrefFile.cpp
+    Source/Util/StringParser.cpp
+    Source/Util/TextFile.cpp
 
     # renderer
     Source/Renderer/Camera.cpp
@@ -67,11 +69,6 @@ set(ALL_SRC_FILES
     # physics environment
     Source/PhysicsEnvironment/PhysicsEnvironment.cpp
     Source/PhysicsEnvironment/Rigidbody.cpp
-
-    #engine
-    Source/Engine/GraphicsSystem.cpp
-    Source/Engine/PhysicsSystem.cpp
-    Source/Engine/PlayerControllerSystem.cpp
 
     Source/Window/WindowManager.cpp
 )
